@@ -1,0 +1,43 @@
+﻿@model QuickQuestions.Areas.Admin.Models.SurveyEditModel
+
+@*  *@
+
+<div class="survey">
+    <input asp-for="ID" type="hidden" />
+
+    <div class="mb-3">
+        <label asp-for="Name" class="control-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Text" class="control-label"></label>
+        <input asp-for="Text" class="form-control" />
+        <span asp-validation-for="Text" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="DateStart" class="control-label"></label>
+        <input type="datetime-local" asp-for="DateStart" class="form-control" />
+        <span asp-validation-for="DateStart" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="DateEnd" class="control-label"></label>
+        <input type="datetime-local" asp-for="DateEnd" class="form-control" />
+        <span asp-validation-for="DateEnd" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <div class="mb-1">
+            @Html.DisplayNameFor(model => model.Questions)
+        </div>
+
+        <div class="questions-container mb-3">
+            @Html.EditorFor(model => model.Questions)
+        </div>
+
+        <div class="btn-group">
+            <input class="add-question btn btn-success" type="button" value="Add Question">
+            <input class="debug-reload btn btn-warning" type="button" value="Request Partial Server Update">
+        </div>
+    </div>
+</div>

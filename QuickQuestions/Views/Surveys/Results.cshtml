@@ -1,0 +1,121 @@
+﻿@model QuickQuestions.Models.ResultsSurveyViewModel
+
+@{
+    ViewData["Title"] = "Survey Results";
+}
+
+<h1>@Html.DisplayFor(model => model.Survey.Name)</h1>
+<h2>Results</h2>
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">
+            Number of answers
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Survey.SurveyResults.Count)
+        </dd>
+        <dt class="col-sm-2">
+            Most active branch
+        </dt>
+        <dd class="col-sm-10">
+            @{
+                if (Model.MostActiveBranch != null)
+                {
+                    @Html.DisplayFor(model => model.MostActiveBranch.Name);
+                }
+                else
+                {
+                    @Html.Display("No branch");
+                }
+            }
+        </dd>
+    </dl>
+</div>
+
+<div class="row">
+    <div class="col">
+        @foreach (var question in Model.Survey.Questions.OrderBy(q => q.Index))
+        {
+            <h4>@Html.DisplayFor(model => question.Text)</h4>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="col-sm-8">
+                            Answer
+                        </th>
+                        <th class="col-sm-3">
+                            Amount
+                        </th>
+                        <th class="col-sm-1">
+                            %
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var answer in question.Answers.OrderBy(a => a.Index))
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(model => answer.Text)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(model => answer.QuestionResults.Count)
+                            </td>
+                            <td>
+                                @String.Format("{0:P2}", (double)answer.QuestionResults.Count / Model.Survey.SurveyResults.Count)
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+@{
+    if (Model.BranchResults != null)
+    {
+        <h2>Results for department</h2>
+        <div class="row">
+            <div class="col">
+                @foreach (var question in Model.Survey.Questions.OrderBy(q => q.Index))
+                {
+                    <h4>@Html.DisplayFor(model => question.Text)</h4>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th class="col-sm-8">
+                                    Answer
+                                </th>
+                                <th class="col-sm-3">
+                                    Amount
+                                </th>
+                                <th class="col-sm-1">
+                                    %
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var answer in question.Answers.OrderBy(a => a.Index))
+                            {
+                                int count = Model.BranchResults.Count(br => br.QuestionResults.Exists(qr => qr.AnswerID == answer.ID));
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(model => answer.Text)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(model => count)
+                                    </td>
+                                    <td>
+                                        @String.Format("{0:P2}", (double)count / Model.BranchResults.Count)
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    }
+}

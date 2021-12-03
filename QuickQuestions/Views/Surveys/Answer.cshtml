@@ -1,0 +1,38 @@
+﻿@model QuickQuestions.Models.Survey
+
+@{
+    ViewData["Title"] = "Survey";
+}
+
+<h1>@Html.DisplayFor(model => model.Name)</h1>
+<p>@Html.DisplayFor(model => model.Text)</p>
+<hr />
+<div class="row">
+    <div class="col">
+        <form asp-action="Answer">
+@foreach (var question in Model.Questions.OrderBy(q => q.Index)) {
+            <div class="mb-3">
+                <h4 class="mb-3">@Html.DisplayFor(model => question.Text)</h4>
+                
+                <div class="container">
+                    <div class="row row-cols-2 g-2">
+                        @foreach (var answer in question.Answers.OrderBy(q => q.Index))
+                        {
+                        <div class="col d-grid">
+                            <input type="radio" class="btn-check" autocomplete="off" id="@answer.ID" name="@question.ID" value="@answer.ID">
+                            <label class="btn btn-outline-primary" for="@answer.ID">
+                                @Html.DisplayFor(model => answer.Text)
+                            </label>
+                        </div>
+                        }
+                    </div>
+                </div>
+                
+            </div>
+}
+            <div class="mb-3">
+                <input type="submit" value="Submit" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>

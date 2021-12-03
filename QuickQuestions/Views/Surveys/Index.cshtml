@@ -1,0 +1,59 @@
+﻿@model QuickQuestions.Models.IndexSurveyViewModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Surveys</h1>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Surveys[0].Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Surveys[0].DateStart)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Surveys[0].DateEnd)
+            </th>
+            <th>
+                Question Number
+            </th>
+            <th>
+
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.Surveys) {
+        <tr>
+            <td>
+                @{
+                    if (item.SurveyResults.FirstOrDefault(sr => sr.UserID == Model.UserID) == null)
+                    {
+                        <a asp-action="Answer" asp-route-id="@item.ID">@Html.DisplayFor(modelItem => item.Name)</a>
+                    }
+                    else
+                    {
+                        <div class="text-success">@Html.DisplayFor(modelItem => item.Name) (already finished)</div>
+                    }
+                }
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DateStart)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DateEnd)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Questions.Count)
+            </td>
+            <td>
+                <a asp-action="Results" asp-route-id="@item.ID">Results</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

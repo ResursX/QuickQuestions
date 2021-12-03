@@ -1,0 +1,22 @@
+﻿@model QuickQuestions.Areas.Admin.Models.AnswerEditModel
+
+@*  *@
+
+<div class="answer row mb-1 align-items-center">
+    <div class="col-auto answer-handle">
+        <label>-</label>
+    </div>
+
+    <input asp-for="ID" type="hidden" />
+    <input asp-for="QuestionID" type="hidden" />
+    <input asp-for="Index" class="index-edit" type="hidden" />
+
+    <div class="text-edit col my-1">
+        <input asp-for="Text" class="form-control text-edit-input" />
+        <span asp-validation-for="Text" class="text-danger"></span>
+    </div>
+
+    <div class="col-auto">
+        <button class="remove-element btn btn-danger" type="button">X</button>
+    </div>
+</div>
