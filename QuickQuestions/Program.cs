@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using QuickQuestions.Areas.Identity.Data;
+using QuickQuestions.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +25,12 @@ namespace QuickQuestions
                 var services = scope.ServiceProvider;
                 var logger = services.GetRequiredService<ILogger<Program>>();
 
+                var context = services.GetRequiredService<QuickQuestionsContext>();
+                context.Database.Migrate();
+
+                var identityContext = services.GetRequiredService<QuickQuestionsIdentityContext>();
+                identityContext.Database.Migrate();
+
                 try
                 {
                     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
@@ -32,7 +40,6 @@ namespace QuickQuestions
                 }
                 catch (Exception e)
                 {
-                    
                     logger.LogError(e, "An error occured while initializing roles.");
                 }
             }

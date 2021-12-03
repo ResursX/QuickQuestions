@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
-using QuickQuestions.Areas.Identity.Data;
-using QuickQuestions.Models;
 
-namespace QuickQuestions.Data
+namespace QuickQuestions.Areas.Identity.Data
 {
     public class QuickQuestionsIdentityContext : IdentityDbContext<QuickQuestionsUser>
     {
