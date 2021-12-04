@@ -36,7 +36,7 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="SurveyResults" asp-action="Index">Results</a>
                         </li>
-                        @if (SignInManager.IsSignedIn(User) && User.IsInRole(RoleInitializer.RoleDepartmentManager))
+                        @if (SignInManager.IsSignedIn(User) && User.IsInRole(RoleInitializer.RoleAdministrator))
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="Admin" asp-controller="Home" asp-action="Index">Administrator panel</a>
