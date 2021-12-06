@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using ClosedXML.Excel;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +8,7 @@ using QuickQuestions.Data;
 using QuickQuestions.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -167,6 +169,7 @@ namespace QuickQuestions.Controllers
             var survey = await _context.Survey
                 .Include(s => s.Questions)
                     .ThenInclude(q => q.Answers)
+                    .ThenInclude(a => a.QuestionResults)
                 .Include(s => s.SurveyResults)
                     .ThenInclude(sr => sr.QuestionResults)
                 .FirstOrDefaultAsync(m => m.ID == id);
@@ -186,23 +189,24 @@ namespace QuickQuestions.Controllers
                 return Forbid($"Survey '{survey.ID}' has already expired.");
             }
 
-            Branch mostActiveBranch = await MostActiveBranch(survey, _context, _userManager);
+            SurveyResultsViewModel result;
 
-            List<SurveyResult> branchResults = null;
-
-            if (User.IsInRole(RoleInitializer.RoleDepartmentManager))
+            if (!User.IsInRole(RoleInitializer.RoleDepartmentManager))
+            {
+                result = new SurveyResultsViewModel(survey);
+            }
+            else
             {
                 QuickQuestionsUser user = await _userManager.GetUserAsync(User);
 
-                branchResults = survey.SurveyResults.Where(sr => _userManager.FindByIdAsync(sr.UserID).Result.BranchID == user.BranchID).ToList();
+                List<SurveyResult> branchResults = survey.SurveyResults.Where(sr => _userManager.FindByIdAsync(sr.UserID).Result.BranchID == user.BranchID).ToList();
+
+                result = new SurveyResultsViewModel(survey, branchResults);
             }
 
-            ResultsSurveyViewModel result = new ResultsSurveyViewModel()
-            {
-                Survey = survey,
-                BranchResults = branchResults,
-                MostActiveBranch = mostActiveBranch
-            };
+            Branch mostActiveBranch = await MostActiveBranch(survey, _context, _userManager);
+
+            result.MostActiveBranch = mostActiveBranch;
 
             return View(result);
         }
@@ -241,6 +245,71 @@ namespace QuickQuestions.Controllers
             }
             else
                 return null;
+        }
+
+        public async Task<IActionResult> Report(Guid? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var survey = await _context.Survey
+                .Include(s => s.Questions)
+                    .ThenInclude(q => q.Answers)
+                .Include(s => s.SurveyResults)
+                    .ThenInclude(sr => sr.QuestionResults)
+                .FirstOrDefaultAsync(m => m.ID == id);
+
+            if (survey == null)
+            {
+                return NotFound();
+            }
+
+            using (XLWorkbook workbook = new XLWorkbook())
+            {
+                foreach (Question question in survey.Questions.OrderBy(q => q.Index))
+                {
+                    IXLWorksheet worksheet = workbook.Worksheets.Add(question.Text);
+
+                    worksheet.Cell(1, 1).Value = question.Text;
+                    worksheet.Range(1, 1, 1, 3).Merge().FirstCell().Style
+                        .Font.SetBold()
+                        .Fill.SetBackgroundColor(XLColor.PastelRed)
+                        .Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+
+                    worksheet.Cell(2, 1).Value = "Answer";
+                    worksheet.Cell(2, 2).Value = "Amount";
+                    worksheet.Cell(2, 3).Value = "%";
+
+                    worksheet.Range(2, 1, 2, 3).Style
+                        .Font.SetBold()
+                        .Fill.SetBackgroundColor(XLColor.PastelRed)
+                        .Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+
+                    int row = 3;
+                    foreach (Answer answer in question.Answers.OrderBy(a => a.Index))
+                    {
+                        worksheet.Cell(row, 1).Value = answer.Text;
+                        worksheet.Cell(row, 2).Value = answer.QuestionResults.Count;
+                        worksheet.Cell(row, 3).Value = (double)answer.QuestionResults.Count / survey.SurveyResults.Count;
+
+                        row++;
+                    }
+
+                    worksheet.Range(3, 3, row, 3).Style.NumberFormat.SetNumberFormatId(10);
+                }
+
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    byte[] content = stream.ToArray();
+
+                    return File(content,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        $"{survey.Name.Replace(' ', '_')}_{DateTime.Now.ToString("yyyy.MM.dd_hh-mm-ss")}.xlsx");
+                }
+            }
         }
     }
 }

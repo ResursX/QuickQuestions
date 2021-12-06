@@ -1,4 +1,4 @@
-﻿@model QuickQuestions.Models.ResultsSurveyViewModel
+﻿@model QuickQuestions.Models.SurveyResultsViewModel
 
 @{
     ViewData["Title"] = "Survey Results";
@@ -31,91 +31,70 @@
             }
         </dd>
     </dl>
-</div>
 
-<div class="row">
-    <div class="col">
-        @foreach (var question in Model.Survey.Questions.OrderBy(q => q.Index))
-        {
-            <h4>@Html.DisplayFor(model => question.Text)</h4>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th class="col-sm-8">
-                            Answer
-                        </th>
-                        <th class="col-sm-3">
-                            Amount
-                        </th>
-                        <th class="col-sm-1">
-                            %
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var answer in question.Answers.OrderBy(a => a.Index))
-                    {
-                        <tr>
-                            <td>
-                                @Html.DisplayFor(model => answer.Text)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(model => answer.QuestionResults.Count)
-                            </td>
-                            <td>
-                                @String.Format("{0:P2}", (double)answer.QuestionResults.Count / Model.Survey.SurveyResults.Count)
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        }
-    </div>
-</div>
-
-@{
-    if (Model.BranchResults != null)
-    {
-        <h2>Results for department</h2>
-        <div class="row">
-            <div class="col">
-                @foreach (var question in Model.Survey.Questions.OrderBy(q => q.Index))
-                {
-                    <h4>@Html.DisplayFor(model => question.Text)</h4>
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th class="col-sm-8">
-                                    Answer
-                                </th>
-                                <th class="col-sm-3">
-                                    Amount
-                                </th>
-                                <th class="col-sm-1">
-                                    %
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var answer in question.Answers.OrderBy(a => a.Index))
-                            {
-                                int count = Model.BranchResults.Count(br => br.QuestionResults.Exists(qr => qr.AnswerID == answer.ID));
-                                <tr>
-                                    <td>
-                                        @Html.DisplayFor(model => answer.Text)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(model => count)
-                                    </td>
-                                    <td>
-                                        @String.Format("{0:P2}", (double)count / Model.BranchResults.Count)
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                }
-            </div>
+    <div class="row">
+        <div class="results-container col">
+            @foreach (var questionResult in Model.QuestionResults)
+            {
+                <partial name="_QuestionResult" model="questionResult" />
+            }
         </div>
+    </div>
+
+    @{
+        if (Model.QuestionBranchResults != null)
+        {
+            <div class="row">
+                <h2>Results for department</h2>
+            </div>
+
+            <div class="row">
+                <div class="branch-results-container col">
+                    @foreach (var questionResult in Model.QuestionBranchResults)
+                    {
+                        <partial name="_QuestionResult" model="questionResult" />
+                    }
+                </div>
+            </div>
+        }
     }
+</div>
+
+@section Scripts {
+    <script src="~/lib/Chart.js/chart.min.js"></script>
+
+    <script type="text/javascript">
+        let questionText = @Html.Raw(Json.Serialize(Model.QuestionResults.Select(qr => qr.Text)));
+        let questionAnswerText = @Html.Raw(Json.Serialize(Model.QuestionResults.Select(qr => qr.AnswerResults.Select(ar => ar.Text))));
+        let questionAnswerResult = @Html.Raw(Json.Serialize(Model.QuestionResults.Select(qr => qr.AnswerResults.Select(ar => ar.Count))));
+
+        function DrawCharts(container, results)
+        {
+            $(container).children().each(function (i) {
+                var ctx = $(this).children('.chart-container').children('.chart-column').children('.chart');
+
+                var chart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: questionAnswerText[i],
+                        datasets: [{
+                            label: questionText[i],
+                            data: results[i]
+                        }]
+                    }
+                })
+            })
+        }
+
+        DrawCharts('.results-container', questionAnswerResult);
+
+        @{
+            if(Model.QuestionBranchResults != null)
+                {
+                    @:let questionAnswerBranchResult = @Html.Raw(Json.Serialize(Model.QuestionBranchResults.Select(qr => qr.AnswerResults.Select(ar => ar.Count))));
+
+                    @:DrawCharts('.branch-results-container', questionAnswerBranchResult);
+                }
+        }
+    </script>
 }

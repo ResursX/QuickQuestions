@@ -18,6 +18,10 @@
         "jquery.js",
         "jquery.min.map"
       ]
+    },
+    {
+      "library": "Chart.js@3.6.1",
+      "destination": "wwwroot/lib/Chart.js/"
     }
   ]
 }

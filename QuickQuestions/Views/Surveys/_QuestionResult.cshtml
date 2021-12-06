@@ -1,0 +1,47 @@
+﻿@model QuickQuestions.Models.QuestionResultsViewModel
+
+<div class="question-result mb-3">
+    <div class="row text-center">
+        <h4>@Html.DisplayFor(model => Model.Text)</h4>
+    </div>
+    
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">
+                    Answer
+                </th>
+                <th scope="col">
+                    Amount
+                </th>
+                <th scope="col">
+                    %
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var answerResults in Model.AnswerResults)
+            {
+                <tr>
+                    <td scope="row">
+                        @Html.DisplayFor(model => answerResults.Text)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(model => answerResults.Count)
+                    </td>
+                    <td>
+                        @String.Format("{0:P2}", answerResults.Percent)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="chart-container row justify-content-center">
+        <div class="chart-column col-4">
+            <canvas class="chart"></canvas>
+        </div>
+    </div>
+</div>
+

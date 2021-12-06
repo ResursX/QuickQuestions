@@ -9,27 +9,23 @@
 <table class="table table-hover">
     <thead>
         <tr>
-            <th>
+            <th scope="col">
                 @Html.DisplayNameFor(model => model.Surveys[0].Name)
             </th>
-            <th>
+            <th scope="col" class="col-2">
                 @Html.DisplayNameFor(model => model.Surveys[0].DateStart)
             </th>
-            <th>
+            <th scope="col" class="col-2">
                 @Html.DisplayNameFor(model => model.Surveys[0].DateEnd)
             </th>
-            <th>
-                Question Number
-            </th>
-            <th>
-
+            <th scope="col" class="col-1">
             </th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model.Surveys) {
+@foreach (var item in Model.Surveys.OrderBy(item => item.Name)) {
         <tr>
-            <td>
+            <td scope="row">
                 @{
                     if (item.SurveyResults.FirstOrDefault(sr => sr.UserID == Model.UserID) == null)
                     {
@@ -42,16 +38,14 @@
                 }
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.DateStart)
+                @item.DateStart.LocalDateTime.ToString("dd.MM.yyyy hh:mm")
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.DateEnd)
+                @item.DateEnd.LocalDateTime.ToString("dd.MM.yyyy hh:mm")
             </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Questions.Count)
-            </td>
-            <td>
-                <a asp-action="Results" asp-route-id="@item.ID">Results</a>
+            <td class="text-center">
+                <a asp-action="Results" asp-route-id="@item.ID" class="text-center">Results</a>
+                <a asp-action="Report" asp-route-id="@item.ID" class="text-center">Report</a>
             </td>
         </tr>
 }
