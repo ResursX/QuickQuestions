@@ -65,7 +65,7 @@ $(document).ready(function () {
     });
 
     $(document).on("click", ".add-answer", function () {
-        var index = $(this).parent().parent().siblings(".index").val();
+        var index = $(this).parent().parent().siblings(".index-edit").val();
         var data = $('#form').serializeArray();
 
         data.push({ name: "index", value: index });
@@ -104,6 +104,10 @@ $(document).ready(function () {
     });
 
     $(document).on("click", ".remove-element", function () {
+        var $container = $(this).parent().parent().parent();
+
         $(this).parent().parent().remove();
+
+        RecalculateIndexes($container);
     });
 });
