@@ -10,11 +10,13 @@
 <hr />
 <div class="row">
     <div class="col">
-        <form asp-action="Create" id="questionForm">
+        <form asp-action="Create" id="form">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
             <div class="mb-3">
                 <label asp-for="SurveyID" class="control-label"></label>
                 <select asp-for="SurveyID" class="form-control" asp-items="ViewBag.SurveyID"></select>
+                <span asp-validation-for="SurveyID" class="text-danger"></span>
             </div>
             <div class="mb-3">
                 <label asp-for="Text" class="control-label"></label>
@@ -54,83 +56,7 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 
-    <script language="javascript" type="text/javascript">
-        const answer_index = "<input name='Answers.Index' type='hidden' value='";
-        const index_end = "' />";
-
-        function RecalculateAnswersIndexes(container)
-        {
-            container.children().each(function (index) {
-                console.log(index);
-                $(this).children(".index-edit").val(index);
-            });
-        }
-
-        function MakeAnswersContainerSortable(container)
-        {
-            container.sortable({
-                handle: ".answer-handle",
-                cursor: "move",
-                revert: 100,
-                stop: function (event, ui) {
-                    RecalculateAnswersIndexes(ui.item.parent());
-                }
-            });
-        }
-
-        MakeAnswersContainerSortable($(".answers-container"));
-
-        $(document).ready(function () {
-            $(document).on("click", ".add-answer", function () {
-                var t = this;
-                var data = $('#questionForm').serialize();
-
-                $.ajax({
-                    async: true,
-                    data: data,
-                    type: "POST",
-                    url: 'AddAnswer',
-                    success: function (partialView) {
-                        //console.log(partialView);
-                        $(t).parent().siblings(".answers-container").replaceWith(partialView);
-
-                        var container = $(t).parent().siblings(".answers-container");
-
-                        container.children().each(function (index) {
-                            $(this).prepend(answer_index + index + index_end);
-                        });
-
-                        MakeAnswersContainerSortable(container);
-                    }
-                });
-            });
-
-            $(document).on("click", ".debug-answer", function () {
-                var t = this;
-                var data = $('#questionForm').serialize();
-
-                $.ajax({
-                    data: data,
-                    type: "POST",
-                    url: 'DebugAnswer',
-                    success: function (partialView) {
-                        $(t).parent().siblings(".answers-container").replaceWith(partialView);
-
-                        var container = $(t).parent().siblings(".answers-container");
-
-                        container.children().each(function (index) {
-                            console.log(index);
-                            $(this).prepend(answer_index + index + index_end);
-                        });
-
-                        MakeAnswersContainerSortable(container);
-                    }
-                });
-            });
-
-            $(document).on("click", ".remove-element", function () {
-                $(this).parent().parent().remove();
-            });
-        });
-    </script>
+    <script src="~/lib/sortablejs/Sortable.js"></script>
+    <script src="~/lib/jquery-sortablejs/jquery-sortable.js"></script>
+    <script src="~/js/question-edit-functionality.js" asp-append-version="true"></script>
 }

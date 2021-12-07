@@ -10,7 +10,7 @@
 <hr />
 <div class="row">
     <div class="col">
-        <form asp-action="Edit" id="questionForm">
+        <form asp-action="Edit" id="form">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="ID" />
             <div class="mb-3">
@@ -56,83 +56,7 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 
-    <script language="javascript" type="text/javascript">
-        const answer_index = "<input name='Answers.Index' type='hidden' value='";
-        const index_end = "' />";
-
-        function RecalculateAnswersIndexes(container)
-        {
-            container.children().each(function (index) {
-                console.log(index);
-                $(this).children(".index-edit").val(index);
-            });
-        }
-
-        function MakeAnswersContainerSortable(container)
-        {
-            container.sortable({
-                handle: ".answer-handle",
-                cursor: "move",
-                revert: 100,
-                stop: function (event, ui) {
-                    RecalculateAnswersIndexes(ui.item.parent());
-                }
-            });
-        }
-
-        MakeAnswersContainerSortable($(".answers-container"));
-
-        $(document).ready(function () {
-            $(document).on("click", ".add-answer", function () {
-                var t = this;
-                var data = $('#questionForm').serialize();
-
-                $.ajax({
-                    async: true,
-                    data: data,
-                    type: "POST",
-                    url: '/Admin/Questions/AddAnswer',
-                    success: function (partialView) {
-                        console.log(partialView);
-                        $(t).parent().siblings(".answers-container").replaceWith(partialView);
-
-                        var container = $(t).parent().siblings(".answers-container");
-
-                        container.children().each(function (index) {
-                            $(this).prepend(answer_index + index + index_end);
-                        });
-
-                        MakeAnswersContainerSortable(container);
-                    }
-                });
-            });
-
-            $(document).on("click", ".debug-answer", function () {
-                var t = this;
-                var data = $('#questionForm').serialize();
-
-                $.ajax({
-                    data: data,
-                    type: "POST",
-                    url: '/Admin/Questions/DebugAnswer',
-                    success: function (partialView) {
-                        $(t).parent().siblings(".answers-container").replaceWith(partialView);
-
-                        var container = $(t).parent().siblings(".answers-container");
-
-                        container.children().each(function (index) {
-                            console.log(index);
-                            $(this).prepend(answer_index + index + index_end);
-                        });
-
-                        MakeAnswersContainerSortable(container);
-                    }
-                });
-            });
-
-            $(document).on("click", ".remove-element", function () {
-                $(this).parent().parent().remove();
-            });
-        });
-    </script>
+    <script src="~/lib/sortablejs/Sortable.js"></script>
+    <script src="~/lib/jquery-sortablejs/jquery-sortable.js"></script>
+    <script src="~/js/question-edit-functionality.js" asp-append-version="true"></script>
 }

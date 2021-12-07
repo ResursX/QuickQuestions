@@ -150,10 +150,10 @@ $(document).ready(function () {
     });
 
     $(document).on("click", ".remove-element", function () {
-        var $container = $(this).parent().parent().parent();
+        var container = $(this).parent().parent().parent();
 
         $(this).parent().parent().remove();
 
-        RecalculateIndexes($container);
+        RecalculateIndexes(container);
     });
 });

@@ -275,20 +275,9 @@ namespace QuickQuestions.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult DebugAnswer([Bind("Answers")] QuestionEditModel question)
+        public IActionResult DebugReload([Bind("Answers")] QuestionEditModel question)
         {
             question.Answers.Sort((a, b) => a.Index.CompareTo(b.Index));
-
-            //StringBuilder sb = new();
-            //
-            //sb.AppendLine(question.Answers.Count.ToString());
-            //
-            //foreach(var item in question.Answers)
-            //{
-            //    sb.AppendLine($"{item.Index} {Convert.ToInt32(item.IsRemoved)} {item.Text}");
-            //}
-            //
-            //_logger.LogInformation(sb.ToString());
 
             ModelState.Clear(); // Lol, this thing has priority over passed model data
 
