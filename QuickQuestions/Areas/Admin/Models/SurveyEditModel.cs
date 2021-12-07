@@ -40,7 +40,7 @@ namespace QuickQuestions.Areas.Admin.Models
 
             Questions = new List<QuestionEditModel>();
 
-            foreach (Question question in survey.Questions)
+            foreach (Question question in survey.Questions.OrderBy(q => q.Index))
             {
                 Questions.Add(new QuestionEditModel(question));
             }

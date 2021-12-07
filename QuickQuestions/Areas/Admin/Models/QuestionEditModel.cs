@@ -35,12 +35,10 @@ namespace QuickQuestions.Areas.Admin.Models
 
             Answers = new List<AnswerEditModel>();
 
-            foreach(Answer answer in question.Answers)
+            foreach(Answer answer in question.Answers.OrderBy(a => a.Index))
             {
                 Answers.Add(new AnswerEditModel(answer));
             }
-
-            Answers.Sort((a, b) => a.Index.CompareTo(b.Index));
         }
     }
 }
