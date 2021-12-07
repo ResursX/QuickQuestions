@@ -184,7 +184,7 @@ namespace QuickQuestions.Controllers
                 return Forbid($"Survey '{survey.ID}' hasn't started yet.");
             }
 
-            if (survey.DateEnd < DateTimeOffset.UtcNow)
+            if (survey.DateEnd < DateTimeOffset.UtcNow && !User.IsInRole(RoleInitializer.RoleAdministrator))
             {
                 return Forbid($"Survey '{survey.ID}' has already expired.");
             }
@@ -204,9 +204,7 @@ namespace QuickQuestions.Controllers
                 result = new SurveyResultsViewModel(survey, branchResults);
             }
 
-            Branch mostActiveBranch = await MostActiveBranch(survey, _context, _userManager);
-
-            result.MostActiveBranch = mostActiveBranch;
+            result.MostActiveBranch = await MostActiveBranch(survey, _context, _userManager);
 
             return View(result);
         }
@@ -307,7 +305,7 @@ namespace QuickQuestions.Controllers
 
                     return File(content,
                         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        $"{survey.Name.Replace(' ', '_')}_{DateTime.Now.ToString("yyyy.MM.dd_hh-mm-ss")}.xlsx");
+                        $"{survey.Name.Replace(' ', '_')}_{DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss")}.xlsx");
                 }
             }
         }
