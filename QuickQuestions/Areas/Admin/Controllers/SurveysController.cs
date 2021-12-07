@@ -290,9 +290,9 @@ namespace QuickQuestions.Areas.Admin.Controllers
             return _context.Survey.Any(e => e.ID == id);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult AddQuestion([Bind("Questions")] SurveyEditModel surveyModel)
+        //AJAX Requests
+
+        private void SortModelArray (SurveyEditModel surveyModel)
         {
             surveyModel.Questions.Sort((a, b) => a.Index.CompareTo(b.Index));
 
@@ -300,6 +300,13 @@ namespace QuickQuestions.Areas.Admin.Controllers
             {
                 question.Answers.Sort((a, b) => a.Index.CompareTo(b.Index));
             }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult AddQuestion([Bind("Questions")] SurveyEditModel surveyModel)
+        {
+            SortModelArray(surveyModel);
 
             surveyModel.Questions.Add(new QuestionEditModel()
             {
@@ -315,12 +322,7 @@ namespace QuickQuestions.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult AddAnswer([Bind("Questions")] SurveyEditModel surveyModel, int index)
         {
-            surveyModel.Questions.Sort((a, b) => a.Index.CompareTo(b.Index));
-
-            foreach (QuestionEditModel question in surveyModel.Questions)
-            {
-                question.Answers.Sort((a, b) => a.Index.CompareTo(b.Index));
-            }
+            SortModelArray(surveyModel);
 
             surveyModel.Questions[index].Answers.Add(new AnswerEditModel()
             {
@@ -334,14 +336,31 @@ namespace QuickQuestions.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        public IActionResult MoveAnswer([Bind("Questions")] SurveyEditModel surveyModel, int questionIndexOld, int indexOld, int questionIndexNew, int indexNew)
+        {
+            SortModelArray(surveyModel);
+
+            surveyModel.Questions[questionIndexNew].Answers.Insert(indexNew, surveyModel.Questions[questionIndexOld].Answers[indexOld]);
+
+            surveyModel.Questions[questionIndexNew].Answers[indexNew].Index = indexNew;
+
+            for(int i = indexNew + 1; i < surveyModel.Questions[questionIndexNew].Answers.Count; i++)
+            {
+                surveyModel.Questions[questionIndexNew].Answers[i].Index = i;
+            }
+
+            surveyModel.Questions[questionIndexOld].Answers.RemoveAt(indexOld);
+
+            ModelState.Clear(); // Lol, this thing has priority over passed model data
+
+            return PartialView("_Questions", surveyModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult DebugReload([Bind("Questions")] SurveyEditModel surveyModel)
         {
-            surveyModel.Questions.Sort((a, b) => a.Index.CompareTo(b.Index));
-
-            foreach (QuestionEditModel question in surveyModel.Questions)
-            {
-                question.Answers.Sort((a, b) => a.Index.CompareTo(b.Index));
-            }
+            SortModelArray(surveyModel);
 
             ModelState.Clear(); // Lol, this thing has priority over passed model data
 

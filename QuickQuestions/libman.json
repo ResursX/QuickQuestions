@@ -7,10 +7,6 @@
       "destination": "wwwroot/lib/bootstrap/"
     },
     {
-      "library": "jqueryui@1.12.1",
-      "destination": "wwwroot/lib/jqueryui/"
-    },
-    {
       "library": "jquery@3.6.0",
       "destination": "wwwroot/lib/jquery/",
       "files": [
@@ -26,6 +22,24 @@
     {
       "library": "google-palette@1.1.0",
       "destination": "wwwroot/lib/google-palette/"
+    },
+    {
+      "provider": "unpkg",
+      "library": "sortablejs@1.14.0",
+      "destination": "wwwroot/lib/sortablejs/",
+      "files": [
+        "LICENSE",
+        "package.json",
+        "README.md",
+        "Sortable.js",
+        "Sortable.min.js"
+      ]
     }
-  ]
+  ,
+{
+  "provider": "unpkg",
+  "library": "jquery-sortablejs@1.0.1",
+  "destination": "wwwroot/lib/jquery-sortablejs/"
+}
+]
 }
