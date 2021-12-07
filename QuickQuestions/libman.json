@@ -22,6 +22,10 @@
     {
       "library": "Chart.js@3.6.1",
       "destination": "wwwroot/lib/Chart.js/"
+    },
+    {
+      "library": "google-palette@1.1.0",
+      "destination": "wwwroot/lib/google-palette/"
     }
   ]
 }

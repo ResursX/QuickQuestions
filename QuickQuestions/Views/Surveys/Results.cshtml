@@ -62,6 +62,7 @@
 
 @section Scripts {
     <script src="~/lib/Chart.js/chart.min.js"></script>
+    <script src="~/lib/google-palette/palette.min.js"></script>
 
     <script type="text/javascript">
         let questionText = @Html.Raw(Json.Serialize(Model.QuestionResults.Select(qr => qr.Text)));
@@ -72,6 +73,9 @@
         {
             $(container).children().each(function (i) {
                 var ctx = $(this).children('.chart-container').children('.chart-column').children('.chart');
+                var pal = palette('mpn65', questionAnswerText[i].length).map(function (hex) {
+                    return '#' + hex;
+                });
 
                 var chart = new Chart(ctx, {
                     type: 'pie',
@@ -79,7 +83,8 @@
                         labels: questionAnswerText[i],
                         datasets: [{
                             label: questionText[i],
-                            data: results[i]
+                            data: results[i],
+                            backgroundColor: pal
                         }]
                     }
                 })
