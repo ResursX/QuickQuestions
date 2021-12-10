@@ -25,11 +25,20 @@ a.navbar-brand {
     color: #FFFFFF;
 }
 
-.btn-primary {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+.btn-primary,
+.btn-primary:hover {
+    color: #fff;
+    background-color: #ff4346 !important;
+    border-color: #ff4346 !important;
 }
+
+    .btn-primary:active,
+    .btn-primary:focus {
+        color: #fff;
+        background-color: #ff4346 !important;
+        border-color: #ff4346 !important;
+        box-shadow: 0 0 0 0.2rem rgba(255,67,70, 0.5) !important;
+    }
 
 .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
     color: #fff;
