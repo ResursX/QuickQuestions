@@ -180,5 +180,26 @@ namespace QuickQuestions.Areas.Admin.Controllers
 
             return View(surveyResults);
         }
+
+        public async Task<IActionResult> Files(string UserId)
+        {
+            if (UserId == null)
+            {
+                return NotFound();
+            }
+
+            var user = await _userManager.FindByIdAsync(UserId);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var files = _context.QuestionResultFile.Include(f => f.QuestionResult).ThenInclude(q => q.SurveyResult).Where(f => f.QuestionResult.SurveyResult.UserID == UserId);
+
+            ViewData["UserName"] = user.FullName;
+
+            return View(files);
+        }
     }
 }

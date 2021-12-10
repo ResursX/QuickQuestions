@@ -1,0 +1,53 @@
+﻿@model IEnumerable<QuickQuestions.Models.QuestionResultFile>
+
+@{
+    ViewData["Title"] = "Файлы пользователя";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-9">
+        <h1>@ViewData["Title"] @ViewData["UserName"]</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        Имя файла
+                    </th>
+                    <th>
+                        Дата
+                    </th>
+                    <th>
+                        Тип
+                    </th>
+                    <th>
+                        Размер
+                    </th>
+                    <th class="col-2"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.FileName)
+                        </td>
+                        <td>
+                            @(item.DateCreated.ToLocalTime().ToString("g"))
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ContentType)
+                        </td>
+                        <td>
+                            @(item.Content.Length)
+                        </td>
+                        <td>
+                            <a asp-area="" asp-controller="" asp-action="Delete" asp-route-id="@item.ID">Удалить</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
