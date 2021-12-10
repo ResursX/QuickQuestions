@@ -1,8 +1,8 @@
 ﻿@model QuickQuestions.Models.QuestionResultsViewModel
 
 <div class="question-result mb-3">
-    <div class="row text-center">
-        <h4>@Html.DisplayFor(model => Model.Text)</h4>
+    <div class="row">
+        <h4>@Html.Raw(Model.Text)</h4>
     </div>
     
 

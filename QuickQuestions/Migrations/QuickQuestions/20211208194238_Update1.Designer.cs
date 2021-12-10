@@ -10,8 +10,8 @@ using QuickQuestions.Data;
 namespace QuickQuestions.Migrations.QuickQuestions
 {
     [DbContext(typeof(QuickQuestionsContext))]
-    [Migration("20211201150839_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20211208194238_Update1")]
+    partial class Update1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -43,10 +43,12 @@ namespace QuickQuestions.Migrations.QuickQuestions
                     b.Property<Guid>("QuestionID")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Summary")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Text")
                         .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ID");
 
@@ -87,6 +89,9 @@ namespace QuickQuestions.Migrations.QuickQuestions
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("CustomAnswerType")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("DateCreated")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("datetime2")
@@ -100,13 +105,15 @@ namespace QuickQuestions.Migrations.QuickQuestions
                     b.Property<int>("Index")
                         .HasColumnType("int");
 
+                    b.Property<string>("Summary")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("SurveyID")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Text")
                         .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ID");
 
@@ -140,6 +147,9 @@ namespace QuickQuestions.Migrations.QuickQuestions
                     b.Property<Guid>("SurveyResultID")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Text")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("ID");
 
                     b.HasIndex("AnswerID");
@@ -149,6 +159,43 @@ namespace QuickQuestions.Migrations.QuickQuestions
                     b.HasIndex("SurveyResultID");
 
                     b.ToTable("QuestionResult");
+                });
+
+            modelBuilder.Entity("QuickQuestions.Models.QuestionResultFile", b =>
+                {
+                    b.Property<Guid>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("Content")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("ContentType")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTimeOffset>("DateCreated")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<DateTimeOffset>("DateUpdated")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("FileName")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<Guid>("QuestionResultID")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("QuestionResultID");
+
+                    b.ToTable("QuestionResultFile");
                 });
 
             modelBuilder.Entity("QuickQuestions.Models.Survey", b =>
@@ -179,8 +226,7 @@ namespace QuickQuestions.Migrations.QuickQuestions
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Text")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ID");
 
@@ -245,9 +291,10 @@ namespace QuickQuestions.Migrations.QuickQuestions
                         .HasForeignKey("AnswerID")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("QuickQuestions.Models.Question", null)
+                    b.HasOne("QuickQuestions.Models.Question", "Question")
                         .WithMany("QuestionResults")
-                        .HasForeignKey("QuestionID");
+                        .HasForeignKey("QuestionID")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("QuickQuestions.Models.SurveyResult", "SurveyResult")
                         .WithMany("QuestionResults")
@@ -257,7 +304,20 @@ namespace QuickQuestions.Migrations.QuickQuestions
 
                     b.Navigation("Answer");
 
+                    b.Navigation("Question");
+
                     b.Navigation("SurveyResult");
+                });
+
+            modelBuilder.Entity("QuickQuestions.Models.QuestionResultFile", b =>
+                {
+                    b.HasOne("QuickQuestions.Models.QuestionResult", "QuestionResult")
+                        .WithMany("QuestionResultFiles")
+                        .HasForeignKey("QuestionResultID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("QuestionResult");
                 });
 
             modelBuilder.Entity("QuickQuestions.Models.SurveyResult", b =>
@@ -281,6 +341,11 @@ namespace QuickQuestions.Migrations.QuickQuestions
                     b.Navigation("Answers");
 
                     b.Navigation("QuestionResults");
+                });
+
+            modelBuilder.Entity("QuickQuestions.Models.QuestionResult", b =>
+                {
+                    b.Navigation("QuestionResultFiles");
                 });
 
             modelBuilder.Entity("QuickQuestions.Models.Survey", b =>

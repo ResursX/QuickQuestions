@@ -17,14 +17,14 @@ namespace QuickQuestions.Models
 
         public AnswerResultsViewModel(Survey survey, Answer answer)
         {
-            Text = answer.Text;
+            Text = answer.Summary;
             Count = answer.QuestionResults.Count;
             Percent = (double)answer.QuestionResults.Count / survey.SurveyResults.Count;
         }
 
         public AnswerResultsViewModel(Answer answer, List<SurveyResult> surveyResults)
         {
-            Text = answer.Text;
+            Text = answer.Summary;
             Count = surveyResults.Count(sr => sr.QuestionResults.Exists(qr => qr.AnswerID == answer.ID));
             Percent = (double)answer.QuestionResults.Count / surveyResults.Count;
         }

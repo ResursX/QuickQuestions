@@ -15,9 +15,12 @@ namespace QuickQuestions.Areas.Admin.Models
 
         public int Index { get; set; }
 
+        public string Summary { get; set; }
+
         [Required]
-        [StringLength(1000)]
         public string Text { get; set; }
+
+        public QuestionCustomAnswerType CustomAnswerType { get; set; }
 
         public List<AnswerEditModel> Answers { get; set; }
 
@@ -31,7 +34,9 @@ namespace QuickQuestions.Areas.Admin.Models
             ID = question.ID;
             SurveyID = question.SurveyID;
             Index = question.Index;
+            Summary = question.Summary;
             Text = question.Text;
+            CustomAnswerType = question.CustomAnswerType;
 
             Answers = new List<AnswerEditModel>();
 

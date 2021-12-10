@@ -15,8 +15,9 @@ namespace QuickQuestions.Areas.Admin.Models
 
         public int Index { get; set; }
 
+        public string Summary { get; set; }
+
         [Required]
-        [StringLength(1000)]
         public string Text { get; set; }
 
         public AnswerEditModel() { }
@@ -26,6 +27,7 @@ namespace QuickQuestions.Areas.Admin.Models
             ID = answer.ID;
             QuestionID = answer.QuestionID;
             Index = answer.Index;
+            Summary = answer.Summary;
             Text = answer.Text;
         }
     }

@@ -10,8 +10,8 @@ using QuickQuestions.Areas.Identity.Data;
 namespace QuickQuestions.Migrations
 {
     [DbContext(typeof(QuickQuestionsIdentityContext))]
-    [Migration("20211201150823_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20211208192641_InititalCreate")]
+    partial class InititalCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

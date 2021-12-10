@@ -1,53 +1,52 @@
-﻿@model QuickQuestions.Models.IndexSurveyViewModel
+﻿@model QuickQuestions.Models.SurveyIndexViewModel
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Актуальные опросы";
 }
 
-<h1>Surveys</h1>
+<div class="row justify-content-center">
+    <div class="col-md-9">
+        <h1>Актуальные опросы</h1>
 
-<table class="table table-hover">
-    <thead>
-        <tr>
-            <th scope="col">
-                @Html.DisplayNameFor(model => model.Surveys[0].Name)
-            </th>
-            <th scope="col" class="col-2">
-                @Html.DisplayNameFor(model => model.Surveys[0].DateStart)
-            </th>
-            <th scope="col" class="col-2">
-                @Html.DisplayNameFor(model => model.Surveys[0].DateEnd)
-            </th>
-            <th scope="col" class="col-1">
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model.Surveys.OrderBy(item => item.Name)) {
-        <tr>
-            <td scope="row">
-                @{
-                    if (item.SurveyResults.FirstOrDefault(sr => sr.UserID == Model.UserID) == null)
-                    {
-                        <a asp-action="Answer" asp-route-id="@item.ID">@Html.DisplayFor(modelItem => item.Name)</a>
-                    }
-                    else
-                    {
-                        <div class="text-success">@Html.DisplayFor(modelItem => item.Name) (already finished)</div>
-                    }
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">
+                        Имя опроса
+                    </th>
+                    <th scope="col" class="col-2">
+                        Осташееся время
+                    </th>
+                    <th scope="col" class="col-1">
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Surveys.OrderBy(item => item.Name))
+                {
+                    <tr>
+                        <td scope="row">
+                            @{
+                                if (item.SurveyResults.FirstOrDefault(sr => sr.UserID == Model.UserID) == null)
+                                {
+                                    <a asp-action="Answer" asp-route-id="@item.ID">@Html.DisplayFor(modelItem => item.Name)</a>
+                                }
+                                else
+                                {
+                                    <div class="text-success">@Html.DisplayFor(modelItem => item.Name) (пройден)</div>
+                                }
+                            }
+                        </td>
+                        <td>
+                            @(String.Format(@"{0:%d} дн. {0:%h} ч. {0:%m} мин.", (item.DateEnd - DateTimeOffset.UtcNow)))
+                        </td>
+                        <td class="text-center">
+                            <a asp-action="Results" asp-route-id="@item.ID" class="text-center">Результаты</a>
+                            <a asp-action="Report" asp-route-id="@item.ID" class="text-center">Отчёт</a>
+                        </td>
+                    </tr>
                 }
-            </td>
-            <td>
-                @item.DateStart.LocalDateTime.ToString("dd.MM.yyyy hh:mm")
-            </td>
-            <td>
-                @item.DateEnd.LocalDateTime.ToString("dd.MM.yyyy hh:mm")
-            </td>
-            <td class="text-center">
-                <a asp-action="Results" asp-route-id="@item.ID" class="text-center">Results</a>
-                <a asp-action="Report" asp-route-id="@item.ID" class="text-center">Report</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+            </tbody>
+        </table>
+    </div>
+</div>

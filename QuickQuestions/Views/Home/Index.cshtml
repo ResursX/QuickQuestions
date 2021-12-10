@@ -1,8 +1,35 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@using Microsoft.AspNetCore.Identity
+@using QuickQuestions.Areas.Identity.Data
+
+@inject SignInManager<QuickQuestionsUser> SignInManager
+@inject UserManager<QuickQuestionsUser> UserManager
+
+@{
+    ViewData["Title"] = "Домашняя страница";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div>
+    <div class="row mt-5">
+        <div class="col">
+            <h1>На нашем сайте вы можете:</h1>
+        </div>
+    </div>
+    <div class="row gx-5">
+        <div class="col gy-5">
+            <h2>Создать<br />опрос</h2>
+            <img src="~/content/Home/CreateSurvey.svg" class="mt-1 mb-3" />
+            <h5>Вопросы в виде текста, изображений, видеофайлов</h5>
+            <h5>Удобный конструктор</h5>
+        </div>
+        <div class="col gy-5">
+            <h2>Собрать<br />ответы</h2>
+            <img src="~/content/Home/CollectAnswers.svg" class="mt-1 mb-3" />
+            <h5>Сотрудники получат уведомления о новых опросах</h5>
+        </div>
+        <div class="col gy-5">
+            <h2>Получить<br />результаты</h2>
+            <img src="~/content/Home/GetResults.svg" class="mt-1 mb-3" />
+            <h5>Наглядное предсталение результатов в виде диаграмм и презентаций</h5>
+        </div>
+    </div>
 </div>

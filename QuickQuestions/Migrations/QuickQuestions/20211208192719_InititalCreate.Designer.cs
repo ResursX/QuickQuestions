@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuickQuestions.Data;
 
 namespace QuickQuestions.Migrations.QuickQuestions
 {
     [DbContext(typeof(QuickQuestionsContext))]
-    partial class QuickQuestionsContextModelSnapshot : ModelSnapshot
+    [Migration("20211208192719_InititalCreate")]
+    partial class InititalCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -81,40 +83,14 @@ namespace QuickQuestions.Migrations.QuickQuestions
                     b.ToTable("Branch");
                 });
 
-            modelBuilder.Entity("QuickQuestions.Models.File", b =>
-                {
-                    b.Property<Guid>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ContentType")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTimeOffset>("DateCreated")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetimeoffset")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<DateTimeOffset>("DateUpdated")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetimeoffset")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<string>("FileName")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.HasKey("ID");
-
-                    b.ToTable("File");
-                });
-
             modelBuilder.Entity("QuickQuestions.Models.Question", b =>
                 {
                     b.Property<Guid>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AnswerLayout")
+                        .HasColumnType("int");
 
                     b.Property<int>("CustomAnswerType")
                         .HasColumnType("int");
@@ -157,9 +133,6 @@ namespace QuickQuestions.Migrations.QuickQuestions
 
                     b.Property<Guid?>("AnswerID")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("CustomAnswer")
-                        .HasColumnType("bit");
 
                     b.Property<DateTime>("DateCreated")
                         .ValueGeneratedOnAddOrUpdate()

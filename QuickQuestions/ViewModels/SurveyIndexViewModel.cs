@@ -2,7 +2,7 @@
 
 namespace QuickQuestions.Models
 {
-    public class IndexSurveyViewModel
+    public class SurveyIndexViewModel
     {
         public List<Survey> Surveys { get; set; }
 

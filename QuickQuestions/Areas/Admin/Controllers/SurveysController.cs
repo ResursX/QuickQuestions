@@ -31,8 +31,8 @@ namespace QuickQuestions.Areas.Admin.Controllers
             return View(await _context.Survey.ToListAsync());
         }
 
-        // GET: Surveys/Details/5
-        public async Task<IActionResult> Details(Guid? id)
+        // GET: Surveys/Render/5
+        public async Task<IActionResult> Render(Guid? id)
         {
             if (id == null)
             {
@@ -40,7 +40,11 @@ namespace QuickQuestions.Areas.Admin.Controllers
             }
 
             var survey = await _context.Survey
+                .Include(s => s.Questions)
+                    .ThenInclude(q => q.Answers)
+                .Include(s => s.SurveyResults)
                 .FirstOrDefaultAsync(m => m.ID == id);
+
             if (survey == null)
             {
                 return NotFound();
@@ -96,8 +100,10 @@ namespace QuickQuestions.Areas.Admin.Controllers
                     Question question = new Question()
                     {
                         ID = Guid.NewGuid(),
+                        Index = questionModel.Index,
+                        Summary = questionModel.Summary,
                         Text = questionModel.Text,
-                        Index = questionModel.Index
+                        CustomAnswerType = questionModel.CustomAnswerType
                     };
 
                     foreach (AnswerEditModel answerModel in questionModel.Answers)
@@ -105,8 +111,9 @@ namespace QuickQuestions.Areas.Admin.Controllers
                         question.Answers.Add(new Answer()
                         {
                             ID = Guid.NewGuid(),
-                            Text = answerModel.Text,
-                            Index = answerModel.Index
+                            Index = answerModel.Index,
+                            Summary = answerModel.Summary,
+                            Text = answerModel.Text
                         });
                     }
 
@@ -174,17 +181,20 @@ namespace QuickQuestions.Areas.Admin.Controllers
 
                         if (questionModel != null)
                         {
-                            survey.Questions[i].Text = questionModel.Text;
                             survey.Questions[i].Index = questionModel.Index;
+                            survey.Questions[i].Summary = questionModel.Summary;
+                            survey.Questions[i].Text = questionModel.Text;
+                            survey.Questions[i].CustomAnswerType = questionModel.CustomAnswerType;
 
-                            for(int j = 0; j < survey.Questions[i].Answers.Count; j++)
+                            for (int j = 0; j < survey.Questions[i].Answers.Count; j++)
                             {
                                 AnswerEditModel answerModel = questionModel.Answers.Find(a => a.ID == survey.Questions[i].Answers[j].ID);
 
                                 if (answerModel != null)
                                 {
-                                    survey.Questions[i].Answers[j].Text = answerModel.Text;
                                     survey.Questions[i].Answers[j].Index = answerModel.Index;
+                                    survey.Questions[i].Answers[j].Summary = answerModel.Summary;
+                                    survey.Questions[i].Answers[j].Text = answerModel.Text;
                                 }
                                 else
                                 {
@@ -200,8 +210,9 @@ namespace QuickQuestions.Areas.Admin.Controllers
                                 {
                                     ID = Guid.NewGuid(),
                                     Question = survey.Questions[i],
+                                    Index = answerModel.Index,
+                                    Summary = answerModel.Summary,
                                     Text = answerModel.Text,
-                                    Index = answerModel.Index
                                 });
                             }
 
@@ -219,8 +230,10 @@ namespace QuickQuestions.Areas.Admin.Controllers
                         {
                             ID = Guid.NewGuid(),
                             Survey = survey,
+                            Index = questionModel.Index,
+                            Summary = questionModel.Summary,
                             Text = questionModel.Text,
-                            Index = questionModel.Index
+                            CustomAnswerType = questionModel.CustomAnswerType
                         };
 
                         _context.Add(question);
@@ -231,8 +244,9 @@ namespace QuickQuestions.Areas.Admin.Controllers
                             {
                                 ID = Guid.NewGuid(),
                                 Question = question,
+                                Index = answerModel.Index,
+                                Summary = answerModel.Summary,
                                 Text = answerModel.Text,
-                                Index = answerModel.Index
                             });
                         }
                     }
@@ -292,7 +306,7 @@ namespace QuickQuestions.Areas.Admin.Controllers
 
         //AJAX Requests
 
-        private void SortModelArray (SurveyEditModel surveyModel)
+        private void SortModelArray(SurveyEditModel surveyModel)
         {
             surveyModel.Questions.Sort((a, b) => a.Index.CompareTo(b.Index));
 

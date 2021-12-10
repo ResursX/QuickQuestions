@@ -7,6 +7,14 @@ using System.Threading.Tasks;
 
 namespace QuickQuestions.Models
 {
+    public enum QuestionCustomAnswerType
+    {
+        noCustom,
+        customText,
+        customRichText,
+        customFile
+    }
+
     public class Question
     {
         public Guid ID { get; set; }
@@ -21,9 +29,12 @@ namespace QuickQuestions.Models
 
         public int Index { get; set; }
 
+        public string Summary { get; set; }
+
         [Required]
-        [StringLength(1000)]
         public string Text { get; set; }
+
+        public QuestionCustomAnswerType CustomAnswerType { get; set; }
 
         public List<Answer> Answers { get; set; }
 

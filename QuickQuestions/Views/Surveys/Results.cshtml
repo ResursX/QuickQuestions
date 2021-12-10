@@ -65,7 +65,7 @@
     <script src="~/lib/google-palette/palette.min.js"></script>
 
     <script type="text/javascript">
-        let questionText = @Html.Raw(Json.Serialize(Model.QuestionResults.Select(qr => qr.Text)));
+        let questionText = @Html.Raw(Json.Serialize(Model.QuestionResults.Select(qr => qr.Summary)));
         let questionAnswerText = @Html.Raw(Json.Serialize(Model.QuestionResults.Select(qr => qr.AnswerResults.Select(ar => ar.Text))));
         let questionAnswerResult = @Html.Raw(Json.Serialize(Model.QuestionResults.Select(qr => qr.AnswerResults.Select(ar => ar.Count))));
 

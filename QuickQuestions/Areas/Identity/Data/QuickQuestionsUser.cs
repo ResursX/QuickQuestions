@@ -19,6 +19,6 @@ namespace QuickQuestions.Areas.Identity.Data
         public Guid? BranchID { get; set; }
 
         [NotMapped]
-        public string FullName { get => $"{Name} {Surname}";}
+        public string FullName { get => $"{Surname} {Name}";}
     }
 }

@@ -34,12 +34,23 @@
         "Sortable.js",
         "Sortable.min.js"
       ]
+    },
+    {
+      "provider": "unpkg",
+      "library": "jquery-sortablejs@1.0.1",
+      "destination": "wwwroot/lib/jquery-sortablejs/"
+    },
+    {
+      "library": "quill@1.3.7",
+      "destination": "wwwroot/lib/quill/",
+      "files": [
+        "quill.js",
+        "quill.min.js",
+        "quill.min.js.map",
+        "quill.snow.css",
+        "quill.snow.min.css",
+        "quill.snow.min.css.map"
+      ]
     }
-  ,
-{
-  "provider": "unpkg",
-  "library": "jquery-sortablejs@1.0.1",
-  "destination": "wwwroot/lib/jquery-sortablejs/"
-}
-]
+  ]
 }

@@ -21,8 +21,9 @@ namespace QuickQuestions.Models
 
         public int Index { get; set; }
 
+        public string Summary { get; set; }
+
         [Required]
-        [StringLength(1000)]
         public string Text { get; set; }
 
         public List<QuestionResult> QuestionResults { get; set; }

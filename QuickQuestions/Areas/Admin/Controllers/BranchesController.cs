@@ -26,24 +26,6 @@ namespace QuickQuestions.Areas.Admin.Controllers
             return View(await _context.Branch.ToListAsync());
         }
 
-        // GET: Branches/Details/5
-        public async Task<IActionResult> Details(Guid? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var branch = await _context.Branch
-                .FirstOrDefaultAsync(m => m.ID == id);
-            if (branch == null)
-            {
-                return NotFound();
-            }
-
-            return View(branch);
-        }
-
         // GET: Branches/Create
         public IActionResult Create()
         {

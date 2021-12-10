@@ -36,7 +36,7 @@ namespace QuickQuestions.Controllers
 
             QuickQuestionsUser user = await _userManager.GetUserAsync(User);
 
-            IndexSurveyViewModel model = new IndexSurveyViewModel()
+            SurveyIndexViewModel model = new SurveyIndexViewModel()
             {
                 Surveys = surveys,
                 UserID = user.Id
@@ -121,15 +121,15 @@ namespace QuickQuestions.Controllers
             }
 
             // Validation of answers
-            foreach (var question in survey.Questions)
-            {
-                string str = formCollection[question.ID.ToString()];
-
-                if (str == null)
-                {
-                    return View(survey);
-                }
-            }
+            //foreach (var question in survey.Questions)
+            //{
+            //    string str = formCollection[question.ID.ToString()];
+            //
+            //    if (str == null)
+            //    {
+            //        return View(survey);
+            //    }
+            //}
 
             SurveyResult result = new SurveyResult()
             {
@@ -138,22 +138,62 @@ namespace QuickQuestions.Controllers
                 UserID = await _userManager.GetUserIdAsync(user)
             };
 
-            await _context.AddAsync(result);
-
             foreach(var question in survey.Questions)
             {
-                Guid answerID = Guid.Parse(formCollection[question.ID.ToString()]);
+                string answer = formCollection[question.ID.ToString()];
 
-                QuestionResult questionResult = new QuestionResult()
+                if (answer != "custom")
                 {
-                    ID = Guid.NewGuid(),
-                    SurveyResult = result,
-                    AnswerID = answerID
-                };
+                    Guid answerID;
 
-                await _context.AddAsync(questionResult);
+                    try
+                    {
+                        answerID = Guid.Parse(formCollection[question.ID.ToString()]);
+                    }
+                    catch
+                    {
+                        return View(survey);
+                    }
+
+                    if ((await _context.Answer.FirstOrDefaultAsync(a => a.ID == answerID)) == null)
+                    {
+                        return View(survey);
+                    }
+
+                    QuestionResult questionResult = new QuestionResult()
+                    {
+                        ID = Guid.NewGuid(),
+                        SurveyResult = result,
+                        AnswerID = answerID,
+                        CustomAnswer = false
+                    };
+                }
+                else
+                {
+                    switch (question.CustomAnswerType)
+                    {
+                        case QuestionCustomAnswerType.customText:
+                        case QuestionCustomAnswerType.customRichText:
+                            {
+                                QuestionResult questionResult = new QuestionResult()
+                                {
+                                    ID = Guid.NewGuid(),
+                                    SurveyResult = result,
+                                    CustomAnswer = true,
+                                    Text = formCollection[$"{question.ID}_custom"]
+                                };
+
+                                break;
+                            }
+                        case QuestionCustomAnswerType.customFile:
+                            {
+                                break;
+                            }
+                    }
+                }
             }
 
+            _context.Add(result);
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));

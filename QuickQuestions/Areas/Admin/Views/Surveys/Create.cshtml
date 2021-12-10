@@ -3,13 +3,10 @@
 @{
     ViewData["Title"] = "Create";
 }
-
-<h1>Create</h1>
-
-<h4>Survey</h4>
-<hr />
-<div class="row">
-    <div class="col">
+<div class="row justify-content-center">
+    <div class="col-md-9">
+        <h1>Создать опрос</h1>
+        <hr />
         <form asp-action="Create" id="form">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
@@ -19,19 +16,19 @@
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
         </form>
+        <div>
+            <a asp-action="Index">Back to List</a>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 
-    <script src="~/lib/sortablejs/Sortable.js"></script>
+    <script src="~/lib/sortablejs/Sortable.min.js"></script>
     <script src="~/lib/jquery-sortablejs/jquery-sortable.js"></script>
+    <script src="~/lib/quill/quill.min.js"></script>
     <script src="~/js/survey-edit-functionality.js" asp-append-version="true"></script>
-
-    @*<script src="~/js/survey-edit-functionality.js" asp-append-version="true" ></script>*@
 }

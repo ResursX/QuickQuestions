@@ -7,34 +7,22 @@ using System.Threading.Tasks;
 
 namespace QuickQuestions.Models
 {
-    public class Survey
+    public class QuestionResultFile
     {
         public Guid ID { get; set; }
+
+        public QuestionResult QuestionResult { get; set; }
+        public Guid QuestionResultID { get; set; }
 
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTimeOffset DateCreated { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTimeOffset DateUpdated { get; set; }
 
-        [Required]
+        [StringLength(255)]
+        public string FileName { get; set; }
         [StringLength(100)]
-        public string Name { get; set; }
-
-        public string Text { get; set; }
-
-        [Required]
-        public DateTimeOffset DateStart { get; set; }
-        [Required]
-        public DateTimeOffset DateEnd { get; set; }
-
-        public List<Question> Questions { get; set; }
-
-        public List<SurveyResult> SurveyResults { get; set; }
-
-        public Survey()
-        {
-            Questions = new List<Question>();
-            SurveyResults = new List<SurveyResult>();
-        }
+        public string ContentType { get; set; }
+        public byte[] Content { get; set; }
     }
 }

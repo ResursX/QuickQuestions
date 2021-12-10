@@ -18,18 +18,19 @@ namespace QuickQuestions.Data
 
         public DbSet<Answer> Answer { get; set; }
 
-        public DbSet<QuestionResult> QuestionResult { get; set; }
-
         public DbSet<SurveyResult> SurveyResult { get; set; }
 
+        public DbSet<QuestionResult> QuestionResult { get; set; }
+
+        public DbSet<QuestionResultFile> QuestionResultFile { get; set; }
+
         public DbSet<Branch> Branch { get; set; }
+
+        public DbSet<File> File { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            // Customize the ASP.NET Identity model and override the defaults if needed.
-            // For example, you can rename the ASP.NET Identity table names and more.
-            // Add your customizations after calling base.OnModelCreating(builder);
 
             // Survey
 
@@ -107,6 +108,12 @@ namespace QuickQuestions.Data
                 .HasForeignKey(p => p.SurveyResultID);
 
             builder.Entity<QuestionResult>()
+                .HasOne(p => p.Question)
+                .WithMany(b => b.QuestionResults)
+                .HasForeignKey(p => p.QuestionID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<QuestionResult>()
                 .HasOne(p => p.Answer)
                 .WithMany(b => b.QuestionResults)
                 .HasForeignKey(p => p.AnswerID)
@@ -118,6 +125,23 @@ namespace QuickQuestions.Data
                 .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 
             builder.Entity<QuestionResult>()
+                .Property(b => b.DateUpdated)
+                .HasDefaultValueSql("GETUTCDATE()")
+                .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+
+            // QuestionResultFile
+
+            builder.Entity<QuestionResultFile>()
+                .HasOne(p => p.QuestionResult)
+                .WithMany(b => b.QuestionResultFiles)
+                .HasForeignKey(p => p.QuestionResultID);
+
+            builder.Entity<QuestionResultFile>()
+                .Property(b => b.DateCreated)
+                .HasDefaultValueSql("GETUTCDATE()")
+                .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+
+            builder.Entity<QuestionResultFile>()
                 .Property(b => b.DateUpdated)
                 .HasDefaultValueSql("GETUTCDATE()")
                 .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
@@ -139,8 +163,18 @@ namespace QuickQuestions.Data
                 .Property(b => b.DateUpdated)
                 .HasDefaultValueSql("GETUTCDATE()")
                 .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
-        }
 
-        
+            // Files
+
+            builder.Entity<File>()
+                .Property(b => b.DateCreated)
+                .HasDefaultValueSql("GETUTCDATE()")
+                .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+
+            builder.Entity<File>()
+                .Property(b => b.DateUpdated)
+                .HasDefaultValueSql("GETUTCDATE()")
+                .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+        }
     }
 }

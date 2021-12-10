@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace QuickQuestions.Migrations.QuickQuestions
 {
-    public partial class InitialCreate : Migration
+    public partial class InititalCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -29,7 +29,7 @@ namespace QuickQuestions.Migrations.QuickQuestions
                     DateCreated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     DateUpdated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Text = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Text = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DateStart = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     DateEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
                 },
@@ -47,7 +47,10 @@ namespace QuickQuestions.Migrations.QuickQuestions
                     DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     DateUpdated = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     Index = table.Column<int>(type: "int", nullable: false),
-                    Text = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false)
+                    Summary = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Text = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CustomAnswerType = table.Column<int>(type: "int", nullable: false),
+                    AnswerLayout = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -90,7 +93,8 @@ namespace QuickQuestions.Migrations.QuickQuestions
                     DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     DateUpdated = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     Index = table.Column<int>(type: "int", nullable: false),
-                    Text = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false)
+                    Summary = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Text = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -109,10 +113,11 @@ namespace QuickQuestions.Migrations.QuickQuestions
                 {
                     ID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     SurveyResultID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    QuestionID = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     AnswerID = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     DateUpdated = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
-                    QuestionID = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    Text = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -133,6 +138,29 @@ namespace QuickQuestions.Migrations.QuickQuestions
                         name: "FK_QuestionResult_SurveyResult_SurveyResultID",
                         column: x => x.SurveyResultID,
                         principalTable: "SurveyResult",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "QuestionResultFile",
+                columns: table => new
+                {
+                    ID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    QuestionResultID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    DateCreated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    DateUpdated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    FileName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    ContentType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Content = table.Column<byte[]>(type: "varbinary(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_QuestionResultFile", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_QuestionResultFile_QuestionResult_QuestionResultID",
+                        column: x => x.QuestionResultID,
+                        principalTable: "QuestionResult",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -163,6 +191,11 @@ namespace QuickQuestions.Migrations.QuickQuestions
                 column: "SurveyResultID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_QuestionResultFile_QuestionResultID",
+                table: "QuestionResultFile",
+                column: "QuestionResultID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SurveyResult_SurveyID",
                 table: "SurveyResult",
                 column: "SurveyID");
@@ -172,6 +205,9 @@ namespace QuickQuestions.Migrations.QuickQuestions
         {
             migrationBuilder.DropTable(
                 name: "Branch");
+
+            migrationBuilder.DropTable(
+                name: "QuestionResultFile");
 
             migrationBuilder.DropTable(
                 name: "QuestionResult");

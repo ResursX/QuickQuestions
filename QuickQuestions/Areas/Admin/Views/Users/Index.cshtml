@@ -1,55 +1,52 @@
 ﻿@model QuickQuestions.Areas.Admin.Models.IndexUserViewModel
 
 @{
-    ViewData["Title"] = "Users";
+    ViewData["Title"] = "Управление пользователями";
 }
 
-<h1>Users</h1>
+<div class="row justify-content-center">
+    <div class="col-md-9">
+        <h1>Управление пользователями</h1>
 
-<!--
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
--->
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Users[0].UserName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Users[0].FullName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Users[0].Email)
-            </th>
-            <th>
-                Branch
-                <!-- Html.DisplayNameFor(model => nameof(QuickQuestions.Models.Branch)) -->
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.Users)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(model => item.UserName)
-                </td>
-                <td>
-                    @Html.DisplayFor(model => item.FullName)
-                </td>
-                <td>
-                    @Html.DisplayFor(model => item.Email)
-                </td>
-                <td>
-                    @Html.DisplayFor(model => model.Branches.Find(item.BranchID).Name)
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-UserId="@item.Id">Edit</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="col-4">
+                        Полное имя
+                    </th>
+                    <th class="col-3">
+                        Электронная почта
+                    </th>
+                    <th class="col-2">
+                        Отдел
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Users)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(model => item.FullName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(model => item.Email)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(model => model.Branches.Find(item.BranchID).Name)
+                        </td>
+                        <td class="text-center">
+                            <a asp-action="Edit" asp-route-UserId="@item.Id">Редактировать</a> |
+                            <a asp-action="Edit" asp-route-UserId="@item.Id">Ответы</a> |
+                            <a asp-action="Edit" asp-route-UserId="@item.Id">Файлы</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+

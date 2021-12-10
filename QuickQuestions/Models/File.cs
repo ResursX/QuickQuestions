@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace QuickQuestions.Models
 {
-    public class Survey
+    public class File
     {
         public Guid ID { get; set; }
 
@@ -16,25 +16,9 @@ namespace QuickQuestions.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTimeOffset DateUpdated { get; set; }
 
-        [Required]
+        [StringLength(255)]
+        public string FileName { get; set; }
         [StringLength(100)]
-        public string Name { get; set; }
-
-        public string Text { get; set; }
-
-        [Required]
-        public DateTimeOffset DateStart { get; set; }
-        [Required]
-        public DateTimeOffset DateEnd { get; set; }
-
-        public List<Question> Questions { get; set; }
-
-        public List<SurveyResult> SurveyResults { get; set; }
-
-        public Survey()
-        {
-            Questions = new List<Question>();
-            SurveyResults = new List<SurveyResult>();
-        }
+        public string ContentType { get; set; }
     }
 }
