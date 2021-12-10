@@ -32,13 +32,30 @@ a.navbar-brand {
     border-color: #ff4346 !important;
 }
 
-    .btn-primary:active,
-    .btn-primary:focus {
-        color: #fff;
-        background-color: #ff4346 !important;
-        border-color: #ff4346 !important;
-        box-shadow: 0 0 0 0.2rem rgba(255,67,70, 0.5) !important;
-    }
+.btn-primary:active,
+.btn-primary:focus {
+    color: #fff;
+    background-color: #ff4346 !important;
+    border-color: #ff4346 !important;
+    box-shadow: 0 0 0 0.2rem rgba(255,67,70, 0.5) !important;
+}
+
+.btn-send,
+.btn-send:hover {
+    color: #fff;
+    font-weight: bold;
+    background-color: #FF0000 !important;
+    border-color: #FF0000 !important;
+}
+
+.btn-send:active,
+.btn-send:focus {
+    color: #fff;
+    font-weight: bold;
+    background-color: #FF0000 !important;
+    border-color: #FF0000 !important;
+    box-shadow: 0 0 0 0.2rem rgba(255,0,0, 0.5) !important;
+}
 
 .form-check-input:focus {
     border-color: #ff4346;
