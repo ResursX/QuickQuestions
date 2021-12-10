@@ -159,5 +159,26 @@ namespace QuickQuestions.Areas.Admin.Controllers
             ViewData["BranchID"] = new SelectList(_context.Branch, "ID", "Name", model.UserBranchID);
             return View(model);
         }
+
+        public async Task<IActionResult> Answers(string UserId)
+        {
+            if (UserId == null)
+            {
+                return NotFound();
+            }
+
+            var user = await _userManager.FindByIdAsync(UserId);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var surveyResults = _context.SurveyResult.Include(s => s.Survey).Where(sr => sr.UserID == UserId);
+
+            ViewData["UserName"] = user.FullName;
+
+            return View(surveyResults);
+        }
     }
 }
