@@ -35,13 +35,15 @@
             Вопросы
         </div>
 
-        <div class="questions-container container">
+        <div class="questions-container container mb-1">
             @Html.EditorFor(model => model.Questions)
         </div>
 
-        <div class="btn-group">
+        <div class="">
             <input class="add-question btn btn-primary" type="button" value="Добавить вопрос">
-            <input class="debug-reload btn btn-primary" type="button" value="Обновить">
+            @*
+        <input class="debug-reload btn btn-primary" type="button" value="Обновить">
+            *@
         </div>
     </div>
 </div>
