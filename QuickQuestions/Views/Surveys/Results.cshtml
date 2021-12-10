@@ -1,83 +1,106 @@
 ﻿@model QuickQuestions.Models.SurveyResultsViewModel
 
 @{
-    ViewData["Title"] = "Survey Results";
+    ViewData["Title"] = "Результаты опроса";
 }
 
-<h1>@Html.DisplayFor(model => model.Survey.Name)</h1>
-<h2>Results</h2>
+<div class="row justify-content-center">
+    <div class="col-md-9">
+        <h1>Результаты для опроса @Html.DisplayFor(model => model.Survey.Name)</h1>
 
-<div>
-    <dl class="row">
-        <dt class="col-sm-2">
-            Number of answers
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Survey.SurveyResults.Count)
-        </dd>
-        <dt class="col-sm-2">
-            Most active branch
-        </dt>
-        <dd class="col-sm-10">
-            @{
-                if (Model.MostActiveBranch != null)
-                {
-                    @Html.DisplayFor(model => model.MostActiveBranch.Name);
-                }
-                else
-                {
-                    @Html.Display("No branch");
-                }
-            }
-        </dd>
-    </dl>
+        <div>
+            <dl class="row">
+                <dt class="col-sm-2">
+                    Количество ответов
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.Survey.SurveyResults.Count)
+                </dd>
+                <dt class="col-sm-2">
+                    Самый активный отдел
+                </dt>
+                <dd class="col-sm-10">
+                    @{
+                        if (Model.MostActiveBranch != null)
+                        {
+                            @Html.DisplayFor(model => model.MostActiveBranch.Name);
+                        }
+                        else
+                        {
+                            @Html.Display("No branch");
+                        }
+                    }
+                </dd>
+            </dl>
 
-    <div class="row">
-        <div class="results-container col">
-            @foreach (var questionResult in Model.QuestionResults)
-            {
-                <partial name="_QuestionResult" model="questionResult" />
-            }
-        </div>
-    </div>
-
-    @{
-        if (Model.QuestionBranchResults != null)
-        {
-            <div class="row">
-                <h2>Results for department</h2>
-            </div>
-
-            <div class="row">
-                <div class="branch-results-container col">
-                    @foreach (var questionResult in Model.QuestionBranchResults)
+            <div class="row container mb-3">
+                <div class="row g-2 results-container">
+                    @foreach (var questionResult in Model.QuestionResults.Where(qr => !qr.CustomOnly))
                     {
-                        <partial name="_QuestionResult" model="questionResult" />
+                        <div class="col-md-6 col-lg-4">
+                            <div class="row text-center">
+                                <div class="col">
+                                    <h4>@Html.DisplayFor(model => questionResult.Summary)</h4>
+                                </div>
+                            </div>
+                            <div class="row chart-container justify-content-center">
+                                <canvas class="chart"></canvas>
+                            </div>
+                        </div>
                     }
                 </div>
             </div>
-        }
-    }
+
+            @{
+                if (Model.QuestionBranchResults != null)
+                {
+                    <div class="row mb-3">
+                        <h2>Результаты отдела</h2>
+                    </div>
+
+                    <div class="row container mb-3">
+                        <div class="row g-2 branch-results-container">
+                            @foreach (var questionResult in Model.QuestionResults.Where(qr => !qr.CustomOnly))
+                            {
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="row text-center">
+                                        <div class="col">
+                                            <h4>@Html.DisplayFor(model => questionResult.Summary)</h4>
+                                        </div>
+                                    </div>
+                                    <div class="row chart-container justify-content-center">
+                                        <canvas class="chart"></canvas>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
 </div>
+
+
 
 @section Scripts {
     <script src="~/lib/Chart.js/chart.min.js"></script>
     <script src="~/lib/google-palette/palette.min.js"></script>
 
     <script type="text/javascript">
-        let questionText = @Html.Raw(Json.Serialize(Model.QuestionResults.Select(qr => qr.Summary)));
-        let questionAnswerText = @Html.Raw(Json.Serialize(Model.QuestionResults.Select(qr => qr.AnswerResults.Select(ar => ar.Text))));
-        let questionAnswerResult = @Html.Raw(Json.Serialize(Model.QuestionResults.Select(qr => qr.AnswerResults.Select(ar => ar.Count))));
+        let questionText = @Html.Raw(Json.Serialize(Model.QuestionResults.Where(qr => !qr.CustomOnly).Select(qr => qr.Summary)));
+        let questionAnswerText = @Html.Raw(Json.Serialize(Model.QuestionResults.Where(qr => !qr.CustomOnly).Select(qr => qr.AnswerResults.Select(ar => ar.Text))));
+        let questionAnswerResult = @Html.Raw(Json.Serialize(Model.QuestionResults.Where(qr => !qr.CustomOnly).Select(qr => qr.AnswerResults.Select(ar => ar.Count))));
 
         function DrawCharts(container, results)
         {
             $(container).children().each(function (i) {
-                var ctx = $(this).children('.chart-container').children('.chart-column').children('.chart');
+                var ctx = $(this).children('.chart-container').children('.chart');
                 var pal = palette('mpn65', questionAnswerText[i].length).map(function (hex) {
                     return '#' + hex;
                 });
 
-                var chart = new Chart(ctx, {
+                new Chart(ctx, {
                     type: 'pie',
                     data: {
                         labels: questionAnswerText[i],
@@ -87,8 +110,8 @@
                             backgroundColor: pal
                         }]
                     }
-                })
-            })
+                });
+            });
         }
 
         DrawCharts('.results-container', questionAnswerResult);
@@ -96,7 +119,7 @@
         @{
             if(Model.QuestionBranchResults != null)
                 {
-                    @:let questionAnswerBranchResult = @Html.Raw(Json.Serialize(Model.QuestionBranchResults.Select(qr => qr.AnswerResults.Select(ar => ar.Count))));
+                    @:let questionAnswerBranchResult = @Html.Raw(Json.Serialize(Model.QuestionBranchResults.Where(qr => !qr.CustomOnly).Select(qr => qr.AnswerResults.Select(ar => ar.Count))));
 
                     @:DrawCharts('.branch-results-container', questionAnswerBranchResult);
                 }

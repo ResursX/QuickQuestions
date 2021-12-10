@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using QuickQuestions.Areas.Identity.Data;
 using QuickQuestions.Data;
 using QuickQuestions.Models;
@@ -16,13 +17,15 @@ namespace QuickQuestions.Controllers
 {
     public class SurveysController : Controller
     {
+        private readonly ILogger<SurveysController> _logger;
         private readonly QuickQuestionsContext _context;
         private readonly UserManager<QuickQuestionsUser> _userManager;
 
-        public SurveysController(QuickQuestionsContext context, UserManager<QuickQuestionsUser> userManager)
+        public SurveysController(QuickQuestionsContext context, UserManager<QuickQuestionsUser> userManager, ILogger<SurveysController> logger)
         {
             _context = context;
             _userManager = userManager;
+            _logger = logger;
         }
 
         public async Task<IActionResult> Index()
@@ -140,56 +143,94 @@ namespace QuickQuestions.Controllers
 
             foreach(var question in survey.Questions)
             {
-                string answer = formCollection[question.ID.ToString()];
+                string str = formCollection[question.ID.ToString()];
 
-                if (answer != "custom")
+                switch (str)
                 {
-                    Guid answerID;
-
-                    try
-                    {
-                        answerID = Guid.Parse(formCollection[question.ID.ToString()]);
-                    }
-                    catch
-                    {
-                        return View(survey);
-                    }
-
-                    if ((await _context.Answer.FirstOrDefaultAsync(a => a.ID == answerID)) == null)
-                    {
-                        return View(survey);
-                    }
-
-                    QuestionResult questionResult = new QuestionResult()
-                    {
-                        ID = Guid.NewGuid(),
-                        SurveyResult = result,
-                        AnswerID = answerID,
-                        CustomAnswer = false
-                    };
-                }
-                else
-                {
-                    switch (question.CustomAnswerType)
-                    {
-                        case QuestionCustomAnswerType.customText:
-                        case QuestionCustomAnswerType.customRichText:
+                    case null:
+                        {
+                            result.QuestionResults.Add(new QuestionResult()
                             {
-                                QuestionResult questionResult = new QuestionResult()
+                                ID = Guid.NewGuid(),
+                                QuestionID = question.ID,
+                                SurveyResult = result,
+                                CustomAnswer = false,
+                            });
+
+                            break;
+                        }
+                    case "custom":
+                        {
+                            switch (question.CustomAnswerType)
+                            {
+                                case QuestionCustomAnswerType.customText:
+                                case QuestionCustomAnswerType.customRichText:
+                                    {
+                                        result.QuestionResults.Add(new QuestionResult()
+                                        {
+                                            ID = Guid.NewGuid(),
+                                            QuestionID = question.ID,
+                                            SurveyResult = result,
+                                            CustomAnswer = true,
+                                            Text = formCollection[$"{question.ID}_custom"]
+                                        });
+
+                                        break;
+                                    }
+                                case QuestionCustomAnswerType.customFile:
+                                    {
+                                        result.QuestionResults.Add(new QuestionResult()
+                                        {
+                                            ID = Guid.NewGuid(),
+                                            QuestionID = question.ID,
+                                            SurveyResult = result,
+                                            CustomAnswer = true
+                                        });
+
+                                        break;
+                                    }
+                                default:
+                                    {
+                                        _logger.LogError("0");
+
+                                        return View(survey);
+                                    }
+                            }
+                            break;
+                        }
+                    default:
+                        {
+                            Guid answerID;
+
+                            if (Guid.TryParse(str, out answerID))
+                            {
+                                var answer = await _context.Answer.FirstOrDefaultAsync(a => a.ID == answerID);
+
+                                if (answer == null)
+                                {
+                                    _logger.LogError("1");
+
+                                    return View(survey);
+                                }
+
+                                result.QuestionResults.Add(new QuestionResult()
                                 {
                                     ID = Guid.NewGuid(),
+                                    QuestionID = question.ID,
                                     SurveyResult = result,
-                                    CustomAnswer = true,
-                                    Text = formCollection[$"{question.ID}_custom"]
-                                };
-
-                                break;
+                                    AnswerID = answerID,
+                                    CustomAnswer = false
+                                });
                             }
-                        case QuestionCustomAnswerType.customFile:
+                            else
                             {
-                                break;
+                                _logger.LogError("2");
+
+                                return View(survey);
                             }
-                    }
+
+                            break;
+                        }
                 }
             }
 
