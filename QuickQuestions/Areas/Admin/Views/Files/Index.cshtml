@@ -41,7 +41,7 @@
                         @Html.DisplayFor(modelItem => item.ContentType)
                     </td>
                     <td>
-                        <a asp-action="View" asp-route-id="@item.ID">Просмотр</a> |
+                        <a href="/files/@item.ID@item.FileExtension">Просмотр</a> |
                         <a asp-action="Delete" asp-route-id="@item.ID">Удалить</a>
                     </td>
                 </tr>

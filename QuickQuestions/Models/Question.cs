@@ -9,9 +9,13 @@ namespace QuickQuestions.Models
 {
     public enum QuestionCustomAnswerType
     {
+        [Display(Name = "Нет")]
         noCustom,
+        [Display(Name = "Ввод")]
         customText,
+        [Display(Name = "Ввод (с форматированием)")]
         customRichText,
+        [Display(Name = "Файл")]
         customFile
     }
 

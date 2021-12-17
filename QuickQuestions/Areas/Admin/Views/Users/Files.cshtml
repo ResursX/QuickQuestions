@@ -30,7 +30,7 @@
                 {
                     <tr>
                         <td>
-                            @Html.DisplayFor(modelItem => item.FileName)
+                            <a asp-controller="UserFiles" asp-action="View" asp-route-id="@item.ID">@Html.DisplayFor(modelItem => item.FileName)</a>
                         </td>
                         <td>
                             @(item.DateCreated.ToLocalTime().ToString("g"))
@@ -42,7 +42,7 @@
                             @(item.Content.Length)
                         </td>
                         <td>
-                            <a asp-area="" asp-controller="" asp-action="Delete" asp-route-id="@item.ID">Удалить</a>
+                            <a asp-controller="UserFiles" asp-action="Delete" asp-route-id="@item.ID">Удалить</a>
                         </td>
                     </tr>
                 }

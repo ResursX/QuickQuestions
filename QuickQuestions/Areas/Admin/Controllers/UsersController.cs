@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -6,12 +7,15 @@ using Microsoft.Extensions.Logging;
 using QuickQuestions.Areas.Admin.Models;
 using QuickQuestions.Areas.Identity.Data;
 using QuickQuestions.Data;
+using QuickQuestions.Models;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace QuickQuestions.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "admin")]
     public class UsersController : Controller
     {
         private readonly ILogger<UsersController> _logger;
@@ -64,6 +68,7 @@ namespace QuickQuestions.Areas.Admin.Controllers
                 UserEmail = user.Email,
                 UserName = user.Name,
                 UserSurname = user.Surname,
+                UserPatronymic = user.Patronymic,
                 UserBranchID = user.BranchID,
 
                 AllRoles = allRoles,
@@ -77,7 +82,7 @@ namespace QuickQuestions.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string UserId, [Bind("UserId,UserEmail,UserName,UserSurname,UserBranchID,UserRoles")] EditUserViewModel model)
+        public async Task<IActionResult> Edit(string UserId, [Bind("UserId,UserEmail,UserName,UserSurname,UserPatronymic,UserBranchID,UserRoles")] EditUserViewModel model)
         {
             if (UserId != model.UserId)
             {
@@ -126,6 +131,12 @@ namespace QuickQuestions.Areas.Admin.Controllers
                 {
                     hasChanged = true;
                     user.Surname = model.UserSurname;
+                }
+
+                if (model.UserPatronymic != user.Patronymic)
+                {
+                    hasChanged = true;
+                    user.Patronymic = model.UserPatronymic;
                 }
 
                 if (model.UserBranchID != user.BranchID)
@@ -179,6 +190,39 @@ namespace QuickQuestions.Areas.Admin.Controllers
             ViewData["UserName"] = user.FullName;
 
             return View(surveyResults);
+        }
+
+        public async Task<IActionResult> SurveyAnswer(Guid? SurveyResultID)
+        {
+            if (SurveyResultID == null)
+            {
+                return NotFound();
+            }
+
+            SurveyResult surveyResult = await _context.SurveyResult
+                .Include(sr => sr.Survey)
+                .Include(sr => sr.QuestionResults)
+                    .ThenInclude(qr => qr.Question)
+                    .ThenInclude(q => q.Answers)
+                .Include(sr => sr.QuestionResults)
+                    .ThenInclude(qr => qr.QuestionResultFiles)
+                .FirstOrDefaultAsync(sr => sr.ID == SurveyResultID);
+
+            if (surveyResult == null)
+            {
+                return NotFound();
+            }
+
+            var user = await _userManager.FindByIdAsync(surveyResult.UserID);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            ViewData["UserName"] = user.FullName;
+
+            return View(surveyResult);
         }
 
         public async Task<IActionResult> Files(string UserId)

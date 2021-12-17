@@ -20,5 +20,7 @@ namespace QuickQuestions.Models
         public string FileName { get; set; }
         [StringLength(100)]
         public string ContentType { get; set; }
+        [StringLength(16)]
+        public string FileExtension { get; set; }
     }
 }

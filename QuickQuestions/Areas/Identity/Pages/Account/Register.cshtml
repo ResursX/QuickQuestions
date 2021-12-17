@@ -4,8 +4,6 @@
     ViewData["Title"] = "Регистрация";
 }
 
-
-
 <div class="row justify-content-center">
     <div class="col-md-5">
         <form asp-route-returnUrl="@Model.ReturnUrl" method="post">
@@ -13,24 +11,24 @@
             <hr />
             <div asp-validation-summary="All" class="text-danger"></div>
             <div class="mb-3">
-                <label>Имя</label>
-                <input class="form-control" />
+                <label>Фамилия</label>
+                <input class="form-control" asp-for="Input.Surname" />
                 <span class="text-danger"></span>
             </div>
             <div class="mb-3">
-                <label>Фамилия</label>
-                <input class="form-control" />
+                <label>Имя</label>
+                <input class="form-control" asp-for="Input.Name" />
                 <span class="text-danger"></span>
             </div>
             <div class="mb-3">
                 <label>Отчество</label>
-                <input class="form-control" />
+                <input class="form-control" asp-for="Input.Patronymic" />
                 <span class="text-danger"></span>
             </div>
             <div class="mb-3">
                 <label>Отдел</label>
-                <select class="form-select">
-                    <option velue="" selected>Выберите отдел</option>
+                <select class="form-select" asp-for="Input.BranchID" asp-items="ViewBag.BranchID">
+                    <option value="" selected>Выберите отдел</option>
                 </select>
                 <span class="text-danger"></span>
             </div>

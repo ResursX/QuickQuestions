@@ -129,6 +129,10 @@ body {
 
 /* Rich Text Containers */
 
+.rich-edit {
+    background: #FFF;
+}
+
 .rich-text > p,
 .rich-text > h1,
 .rich-text > h2,

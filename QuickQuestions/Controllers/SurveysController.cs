@@ -1,4 +1,4 @@
-﻿using ClosedXML.Excel;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using QuickQuestions.Areas.Identity.Data;
 using QuickQuestions.Data;
 using QuickQuestions.Models;
+using QuickQuestions.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,6 +16,7 @@ using System.Threading.Tasks;
 
 namespace QuickQuestions.Controllers
 {
+    [Authorize(Roles = "user,manager,admin")]
     public class SurveysController : Controller
     {
         private readonly ILogger<SurveysController> _logger;
@@ -48,6 +50,7 @@ namespace QuickQuestions.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "user")]
         public async Task<IActionResult> Answer(Guid? id)
         {
             if (id == null)
@@ -83,12 +86,16 @@ namespace QuickQuestions.Controllers
                 return Unauthorized($"User's answer for survey '{survey.ID}' already exists.");
             }
 
+            //SurveyAnswerModel model = new SurveyAnswerModel(survey);
+
             return View(survey);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Answer(Guid? id, IFormCollection formCollection)
+        [Consumes("multipart/form-data")]
+        [Authorize(Roles = "user")]
+        public async Task<IActionResult> Answer(Guid? id, [FromForm] Dictionary<string, string> Answers, [FromForm] Dictionary<string, string> CustomAnswersText, IFormCollection formCollection)
         {
             if (id == null)
             {
@@ -141,96 +148,127 @@ namespace QuickQuestions.Controllers
                 UserID = await _userManager.GetUserIdAsync(user)
             };
 
-            foreach(var question in survey.Questions)
+            foreach (Question question in survey.Questions)
             {
-                string str = formCollection[question.ID.ToString()];
-
-                switch (str)
+                if(Answers.ContainsKey(question.ID.ToString()))
                 {
-                    case null:
-                        {
-                            result.QuestionResults.Add(new QuestionResult()
+                    string ans = Answers[question.ID.ToString()];
+
+                    switch (ans)
+                    {
+                        case "false":
+                        case null:
                             {
-                                ID = Guid.NewGuid(),
-                                QuestionID = question.ID,
-                                SurveyResult = result,
-                                CustomAnswer = false,
-                            });
-
-                            break;
-                        }
-                    case "custom":
-                        {
-                            switch (question.CustomAnswerType)
-                            {
-                                case QuestionCustomAnswerType.customText:
-                                case QuestionCustomAnswerType.customRichText:
-                                    {
-                                        result.QuestionResults.Add(new QuestionResult()
-                                        {
-                                            ID = Guid.NewGuid(),
-                                            QuestionID = question.ID,
-                                            SurveyResult = result,
-                                            CustomAnswer = true,
-                                            Text = formCollection[$"{question.ID}_custom"]
-                                        });
-
-                                        break;
-                                    }
-                                case QuestionCustomAnswerType.customFile:
-                                    {
-                                        result.QuestionResults.Add(new QuestionResult()
-                                        {
-                                            ID = Guid.NewGuid(),
-                                            QuestionID = question.ID,
-                                            SurveyResult = result,
-                                            CustomAnswer = true
-                                        });
-
-                                        break;
-                                    }
-                                default:
-                                    {
-                                        _logger.LogError("0");
-
-                                        return View(survey);
-                                    }
-                            }
-                            break;
-                        }
-                    default:
-                        {
-                            Guid answerID;
-
-                            if (Guid.TryParse(str, out answerID))
-                            {
-                                var answer = await _context.Answer.FirstOrDefaultAsync(a => a.ID == answerID);
-
-                                if (answer == null)
-                                {
-                                    _logger.LogError("1");
-
-                                    return View(survey);
-                                }
-
                                 result.QuestionResults.Add(new QuestionResult()
                                 {
                                     ID = Guid.NewGuid(),
                                     QuestionID = question.ID,
                                     SurveyResult = result,
-                                    AnswerID = answerID,
-                                    CustomAnswer = false
+                                    CustomAnswer = false,
                                 });
+
+                                break;
                             }
-                            else
+                        case "custom":
                             {
-                                _logger.LogError("2");
+                                switch (question.CustomAnswerType)
+                                {
+                                    case QuestionCustomAnswerType.customText:
+                                    case QuestionCustomAnswerType.customRichText:
+                                        {
+                                            result.QuestionResults.Add(new QuestionResult()
+                                            {
+                                                ID = Guid.NewGuid(),
+                                                QuestionID = question.ID,
+                                                SurveyResult = result,
+                                                CustomAnswer = true,
+                                                Text = CustomAnswersText[question.ID.ToString()]
+                                            });
 
-                                return View(survey);
+                                            break;
+                                        }
+                                    case QuestionCustomAnswerType.customFile:
+                                        {
+                                            QuestionResult questionResult = new QuestionResult()
+                                            {
+                                                ID = Guid.NewGuid(),
+                                                QuestionID = question.ID,
+                                                SurveyResult = result,
+                                                CustomAnswer = true
+                                            };
+
+                                            foreach(IFormFile file in formCollection.Files.Where(f => f.Name == question.ID.ToString()))
+                                            {
+                                                using (BinaryReader binaryReader = new BinaryReader(file.OpenReadStream()))
+                                                {
+                                                    questionResult.QuestionResultFiles.Add(new QuestionResultFile()
+                                                    {
+                                                        ID = Guid.NewGuid(),
+                                                        FileName = file.FileName,
+                                                        ContentType = file.ContentType,
+                                                        Content = binaryReader.ReadBytes((int)file.Length)
+                                                    });
+                                                }
+                                            }
+
+                                            result.QuestionResults.Add(questionResult);
+
+                                            break;
+                                        }
+                                    default:
+                                        {
+                                            _logger.LogError("0");
+
+                                            return View(survey);
+                                        }
+                                }
+
+                                break;
                             }
+                        default:
+                            {
+                                Guid answerID;
 
-                            break;
-                        }
+                                if (Guid.TryParse(ans, out answerID))
+                                {
+                                    var answer = await _context.Answer.FirstOrDefaultAsync(a => a.ID == answerID);
+
+                                    if (answer == null)
+                                    {
+                                        _logger.LogError("1");
+
+                                        return View(survey);
+                                    }
+
+                                    result.QuestionResults.Add(new QuestionResult()
+                                    {
+                                        ID = Guid.NewGuid(),
+                                        QuestionID = question.ID,
+                                        SurveyResult = result,
+                                        AnswerID = answerID,
+                                        CustomAnswer = false
+                                    });
+                                }
+                                else
+                                {
+                                    _logger.LogError("2");
+
+                                    return View(survey);
+                                }
+
+                                break;
+                            }
+                    }
+                }
+                else
+                {
+                    result.QuestionResults.Add(new QuestionResult()
+                    {
+                        ID = Guid.NewGuid(),
+                        QuestionID = question.ID,
+                        SurveyResult = result,
+                        CustomAnswer = false,
+                    });
                 }
             }
 
@@ -324,71 +362,6 @@ namespace QuickQuestions.Controllers
             }
             else
                 return null;
-        }
-
-        public async Task<IActionResult> Report(Guid? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var survey = await _context.Survey
-                .Include(s => s.Questions)
-                    .ThenInclude(q => q.Answers)
-                .Include(s => s.SurveyResults)
-                    .ThenInclude(sr => sr.QuestionResults)
-                .FirstOrDefaultAsync(m => m.ID == id);
-
-            if (survey == null)
-            {
-                return NotFound();
-            }
-
-            using (XLWorkbook workbook = new XLWorkbook())
-            {
-                foreach (Question question in survey.Questions.OrderBy(q => q.Index))
-                {
-                    IXLWorksheet worksheet = workbook.Worksheets.Add(question.Text);
-
-                    worksheet.Cell(1, 1).Value = question.Text;
-                    worksheet.Range(1, 1, 1, 3).Merge().FirstCell().Style
-                        .Font.SetBold()
-                        .Fill.SetBackgroundColor(XLColor.PastelRed)
-                        .Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
-
-                    worksheet.Cell(2, 1).Value = "Answer";
-                    worksheet.Cell(2, 2).Value = "Amount";
-                    worksheet.Cell(2, 3).Value = "%";
-
-                    worksheet.Range(2, 1, 2, 3).Style
-                        .Font.SetBold()
-                        .Fill.SetBackgroundColor(XLColor.PastelRed)
-                        .Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
-
-                    int row = 3;
-                    foreach (Answer answer in question.Answers.OrderBy(a => a.Index))
-                    {
-                        worksheet.Cell(row, 1).Value = answer.Text;
-                        worksheet.Cell(row, 2).Value = answer.QuestionResults.Count;
-                        worksheet.Cell(row, 3).Value = (double)answer.QuestionResults.Count / survey.SurveyResults.Count;
-
-                        row++;
-                    }
-
-                    worksheet.Range(3, 3, row, 3).Style.NumberFormat.SetNumberFormatId(10);
-                }
-
-                using (MemoryStream stream = new MemoryStream())
-                {
-                    workbook.SaveAs(stream);
-                    byte[] content = stream.ToArray();
-
-                    return File(content,
-                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        $"{survey.Name.Replace(' ', '_')}_{DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss")}.xlsx");
-                }
-            }
         }
     }
 }

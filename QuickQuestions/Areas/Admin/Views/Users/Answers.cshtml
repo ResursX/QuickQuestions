@@ -30,6 +30,7 @@
                             @(item.DateCreated.ToLocalTime().ToString("g"))
                         </td>
                         <td>
+                            <a asp-action="SurveyAnswer" asp-route-SurveyResultID="@item.ID">Просмотреть</a> |
                             <a asp-area="" asp-controller="SurveyResults" asp-action="Delete" asp-route-id="@item.ID">Удалить</a>
                         </td>
                     </tr>

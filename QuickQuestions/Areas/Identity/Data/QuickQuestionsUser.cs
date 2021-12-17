@@ -14,11 +14,13 @@ namespace QuickQuestions.Areas.Identity.Data
         public string Name { get; set; }
         [PersonalData]
         public string Surname { get; set; }
+        [PersonalData]
+        public string Patronymic { get; set; }
 
         [PersonalData]
         public Guid? BranchID { get; set; }
 
         [NotMapped]
-        public string FullName { get => $"{Surname} {Name}";}
+        public string FullName => $"{Surname} {Name} {Patronymic}";
     }
 }
