@@ -1,0 +1,109 @@
+﻿@model QuickQuestions.Models.Survey
+
+<div class="mb-3" style="background: #E9ECEE; border-radius: 10px;">
+    <div style="height: 6.84px; background: #FF0000; border-radius: 10px;"></div>
+    <div class="px-3 py-2">
+        <h1>@Html.DisplayFor(model => model.Name)</h1>
+        <div class="rich-text">@Html.Raw(Model.Text)</div>
+    </div>
+</div>
+
+@{
+    int indexAnswers = 0,
+        indexCustomAnswersText = 0,
+        indexCustomAnswersFiles = 0;
+
+    foreach (var question in Model.Questions.OrderBy(q => q.Index))
+    {
+        <div class="mb-3" style="background: #E9ECEE; border-radius: 10px;">
+            <div style="height: 6.84px; background: #FF0000; border-radius: 10px;"></div>
+
+            <input type="hidden" name="Answers[@indexAnswers].Key" value="@question.ID" />
+
+            <div class="px-3 py-2">
+                <div class="form-check">
+                    <div id="@question.ID" style="float: left; margin-left: -1.5em;">@(question.Index + 1).</div>
+                    <label class="form-check-label rich-text" for="@question.ID">
+                        @Html.Raw(question.Text)
+                    </label>
+                </div>
+
+                <div>
+                    @{
+                        if (question.Answers.Count > 1 || question.Answers.Count == 1 && question.CustomAnswerType != QuestionCustomAnswerType.noCustom)
+                        {
+                            @* Default render *@
+                            foreach (var answer in question.Answers.OrderBy(q => q.Index))
+                            {
+                                <div class="form-check">
+                                    <input type="radio" class="form-check-input" autocomplete="off" id="@answer.ID" name="Answers[@indexAnswers].Value" value="@answer.ID">
+                                    <label class="form-check-label rich-text" for="@answer.ID">
+                                        @Html.Raw(answer.Text)
+                                    </label>
+                                </div>
+                            }
+                        }
+                        else if (question.Answers.Count == 1)
+                        {
+                            @* Checkbox *@
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" autocomplete="off" id="@question.Answers[0].ID" name="Answers[@indexAnswers].Value" value="@question.Answers[0].ID">
+                                <label class="form-check-label rich-text" for="@question.Answers[0].ID">
+                                    @Html.Raw(question.Answers[0].Text)
+                                </label>
+                            </div>
+                        }
+
+                        if (question.CustomAnswerType != QuestionCustomAnswerType.noCustom)
+                        {
+                            <div class="form-check">
+                                @if (question.Answers.Count > 0)
+                                {
+                                    <input type="radio" class="form-check-input" autocomplete="off" id="@(question.ID)_custom" name="Answers[@indexAnswers].Value" value="custom">
+                                    <label class="form-check-label" for="@(question.ID)_custom">
+                                        Свой ответ
+                                    </label>
+                                }
+                                else
+                                {
+                                    <input type="hidden" autocomplete="off" id="@(question.ID)_custom" name="Answers[@indexAnswers].Value" value="custom">
+                                }
+
+                                @switch (question.CustomAnswerType)
+                                {
+                                    case QuestionCustomAnswerType.customText:
+                                        {
+                                            <input type="hidden" name="CustomAnswersText[@indexCustomAnswersText].Key" value="@question.ID" />
+                                            <input type="text" class="form-control text-input" id="@question.ID" name="CustomAnswersText[@indexCustomAnswersText].Value" placeholder="Введите свой вариант ответа..." style="outline: 0; border-width: 0 0 2px; border-color: #0F2232; border-radius: 0px; background-color: #00000000">
+
+                                            indexCustomAnswersText++;
+                                            break;
+                                        }
+                                    case QuestionCustomAnswerType.customRichText:
+                                        {
+                                            <input type="hidden" name="CustomAnswersText[@indexCustomAnswersText].Key" value="@question.ID" />
+                                            <input type="hidden" class="rich-input" id="@question.ID" name="CustomAnswersText[@indexCustomAnswersText].Value">
+                                            <div class="rich-edit"></div>
+
+                                            indexCustomAnswersText++;
+                                            break;
+                                        }
+                                    case QuestionCustomAnswerType.customFile:
+                                        {
+                                            @*<input type="hidden" name="CustomAnswersText[@indexCustomAnswersFiles].Key" value="@question.ID" />*@
+                                            <input type="file" class="form-control file-input" id="@question.ID" name="@question.ID" multiple>
+
+                                            indexCustomAnswersFiles++;
+                                            break;
+                                        }
+                                }
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+        indexAnswers++;
+    }
+}

@@ -7,7 +7,6 @@ namespace QuickQuestions.Models
 {
     public class QuestionResultsViewModel
     {
-        public string Summary { get; set; }
         public string Text { get; set; }
 
         public bool CustomOnly { get; set; }
@@ -21,8 +20,7 @@ namespace QuickQuestions.Models
 
         public QuestionResultsViewModel(Survey survey, Question question)
         {
-            Summary = question.Summary;
-            Text = question.Text;
+            Text = question.Summary;
             CustomOnly = (question.CustomAnswerType != QuestionCustomAnswerType.noCustom && question.Answers.Count == 0);
 
             if (!CustomOnly)
@@ -44,8 +42,7 @@ namespace QuickQuestions.Models
 
         public QuestionResultsViewModel(Question question, List<SurveyResult> surveyResults)
         {
-            Summary = question.Summary;
-            Text = question.Text;
+            Text = question.Summary;
             CustomOnly = (question.CustomAnswerType != QuestionCustomAnswerType.noCustom && question.Answers.Count == 0);
 
             if (!CustomOnly)

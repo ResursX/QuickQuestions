@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ClosedXML.Excel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,10 +13,12 @@ using Microsoft.Extensions.Logging;
 using QuickQuestions.Areas.Admin.Models;
 using QuickQuestions.Data;
 using QuickQuestions.Models;
+using QuickQuestions.ViewModels;
 
 namespace QuickQuestions.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "admin")]
     public class SurveysController : Controller
     {
         private readonly ILogger<SurveysController> _logger;
@@ -42,13 +47,14 @@ namespace QuickQuestions.Areas.Admin.Controllers
             var survey = await _context.Survey
                 .Include(s => s.Questions)
                     .ThenInclude(q => q.Answers)
-                .Include(s => s.SurveyResults)
                 .FirstOrDefaultAsync(m => m.ID == id);
 
             if (survey == null)
             {
                 return NotFound();
             }
+
+            //SurveyAnswerModel model = new SurveyAnswerModel(survey);
 
             return View(survey);
         }
@@ -268,6 +274,57 @@ namespace QuickQuestions.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
             return View(surveyModel);
+        }
+
+        public async Task<IActionResult> Report(Guid? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var survey = await _context.Survey
+                .Include(s => s.Questions)
+                    .ThenInclude(q => q.Answers)
+                    .ThenInclude(a => a.QuestionResults)
+                .Include(s => s.SurveyResults)
+                    .ThenInclude(sr => sr.QuestionResults)
+                .FirstOrDefaultAsync(m => m.ID == id);
+
+            if (survey == null)
+            {
+                return NotFound();
+            }
+
+            SurveyResultsViewModel result = new SurveyResultsViewModel(survey);
+
+            using (XLWorkbook workbook = new XLWorkbook())
+            {
+                foreach (QuestionResultsViewModel questionResult in result.QuestionResults.Where(qr => !qr.CustomOnly))
+                {
+                    IXLWorksheet worksheet = workbook.Worksheets.Add(questionResult.Text);
+
+                    worksheet.Cell(1, 1).Value = questionResult.Text;
+                    worksheet.Range(1, 1, 1, 3).Merge().FirstCell().Style
+                        .Font.SetBold()
+                        .Fill.SetBackgroundColor(XLColor.PastelRed)
+                        .Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+
+                    var table = worksheet.Cell(2, 1).InsertTable(questionResult.AnswerResults);
+
+                    //worksheet.Range(3, 3, row, 3).Style.NumberFormat.SetNumberFormatId(10);
+                }
+
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    byte[] content = stream.ToArray();
+
+                    return File(content,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        $"{survey.Name.Replace(' ', '_')}_{DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss")}.xlsx");
+                }
+            }
         }
 
         // GET: Surveys/Delete/5

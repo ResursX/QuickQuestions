@@ -20,6 +20,9 @@ namespace QuickQuestions.Areas.Admin.Models
         [Required]
         [DataType(DataType.Text)]
         public string UserSurname { get; set; }
+        [Required]
+        [DataType(DataType.Text)]
+        public string UserPatronymic { get; set; }
 
         public Guid? UserBranchID { get; set; }
 

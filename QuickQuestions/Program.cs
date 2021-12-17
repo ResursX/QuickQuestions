@@ -36,6 +36,9 @@ namespace QuickQuestions
                     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
                     await RoleInitializer.InitializeRoles(roleManager);
 
+                    //var userManager = services.GetRequiredService<UserManager<QuickQuestionsUser>>();
+                    //await SuperAdminInitializer.InitializeSuperAdmin(userManager, roleManager);
+
                     logger.LogInformation("");
                 }
                 catch (Exception e)

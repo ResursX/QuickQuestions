@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuickQuestions.Areas.Identity.Data;
 
 namespace QuickQuestions.Migrations
 {
     [DbContext(typeof(QuickQuestionsIdentityContext))]
-    partial class QuickQuestionsIdentityContextModelSnapshot : ModelSnapshot
+    [Migration("20211216135846_IdentityUpdate1")]
+    partial class IdentityUpdate1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

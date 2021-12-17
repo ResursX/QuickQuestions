@@ -33,19 +33,13 @@
                 </dd>
             </dl>
 
-            <div class="row container mb-3">
-                <div class="row g-2 results-container">
+            <div class="row container g-2 mb-3">
+                <div class="row g-2 align-items-end justify-content-center results-container">
                     @foreach (var questionResult in Model.QuestionResults.Where(qr => !qr.CustomOnly))
                     {
-                        <div class="col-md-6 col-lg-4">
-                            <div class="row text-center">
-                                <div class="col">
-                                    <h4>@Html.DisplayFor(model => questionResult.Summary)</h4>
-                                </div>
-                            </div>
-                            <div class="row chart-container justify-content-center">
-                                <canvas class="chart"></canvas>
-                            </div>
+                        <div class="col-md-6 col-lg-4 mt-0 justify-content-center">
+                            <h4 class="text-center">@Html.DisplayFor(model => questionResult.Text)</h4>
+                            <canvas class="chart"></canvas>
                         </div>
                     }
                 </div>
@@ -58,19 +52,13 @@
                         <h2>Результаты отдела</h2>
                     </div>
 
-                    <div class="row container mb-3">
-                        <div class="row g-2 branch-results-container">
+                    <div class="row container g-2 mb-3">
+                        <div class="row g-2 align-items-end justify-content-center branch-results-container">
                             @foreach (var questionResult in Model.QuestionResults.Where(qr => !qr.CustomOnly))
                             {
-                                <div class="col-md-6 col-lg-4">
-                                    <div class="row text-center">
-                                        <div class="col">
-                                            <h4>@Html.DisplayFor(model => questionResult.Summary)</h4>
-                                        </div>
-                                    </div>
-                                    <div class="row chart-container justify-content-center">
-                                        <canvas class="chart"></canvas>
-                                    </div>
+                                <div class="col-md-6 col-lg-4 mt-0 justify-content-center">
+                                    <h4 class="text-center">@Html.DisplayFor(model => questionResult.Text)</h4>
+                                    <canvas class="chart"></canvas>
                                 </div>
                             }
                         </div>
@@ -88,14 +76,14 @@
     <script src="~/lib/google-palette/palette.min.js"></script>
 
     <script type="text/javascript">
-        let questionText = @Html.Raw(Json.Serialize(Model.QuestionResults.Where(qr => !qr.CustomOnly).Select(qr => qr.Summary)));
+        let questionText = @Html.Raw(Json.Serialize(Model.QuestionResults.Where(qr => !qr.CustomOnly).Select(qr => qr.Text)));
         let questionAnswerText = @Html.Raw(Json.Serialize(Model.QuestionResults.Where(qr => !qr.CustomOnly).Select(qr => qr.AnswerResults.Select(ar => ar.Text))));
         let questionAnswerResult = @Html.Raw(Json.Serialize(Model.QuestionResults.Where(qr => !qr.CustomOnly).Select(qr => qr.AnswerResults.Select(ar => ar.Count))));
 
         function DrawCharts(container, results)
         {
             $(container).children().each(function (i) {
-                var ctx = $(this).children('.chart-container').children('.chart');
+                var ctx = $(this).children('.chart');
                 var pal = palette('mpn65', questionAnswerText[i].length).map(function (hex) {
                     return '#' + hex;
                 });

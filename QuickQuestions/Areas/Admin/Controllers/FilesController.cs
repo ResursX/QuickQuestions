@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +15,7 @@ using QuickQuestions.Models;
 namespace QuickQuestions.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "admin")]
     public class FilesController : Controller
     {
         private readonly QuickQuestionsContext _context;
@@ -53,7 +55,7 @@ namespace QuickQuestions.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            return File(new FileStream(_appEnvironment.WebRootPath + $"/files/{id}", FileMode.Open), file.ContentType);
+            return LocalRedirect($"~/files/{file.ID}{file.FileExtension}"); //File(new FileStream(_appEnvironment.WebRootPath + $"/files/{id}", FileMode.Open), file.ContentType);
         }
 
         // POST: Admin/Files/Create
@@ -69,10 +71,11 @@ namespace QuickQuestions.Areas.Admin.Controllers
                 {
                     ID = Guid.NewGuid(),
                     FileName = uploadedFile.FileName,
-                    ContentType = uploadedFile.ContentType
+                    ContentType = uploadedFile.ContentType,
+                    FileExtension = Path.GetExtension(uploadedFile.FileName)
                 };
 
-                using (var fileStream = new FileStream(_appEnvironment.WebRootPath + $"/files/{file.ID}", FileMode.Create))
+                using (var fileStream = new FileStream(_appEnvironment.WebRootPath + $"/files/{file.ID}{file.FileExtension}", FileMode.Create))
                 {
                     await uploadedFile.CopyToAsync(fileStream);
                 }
@@ -94,6 +97,7 @@ namespace QuickQuestions.Areas.Admin.Controllers
 
             var file = await _context.File
                 .FirstOrDefaultAsync(m => m.ID == id);
+
             if (file == null)
             {
                 return NotFound();
@@ -108,8 +112,15 @@ namespace QuickQuestions.Areas.Admin.Controllers
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             var file = await _context.File.FindAsync(id);
-            _context.File.Remove(file);
-            await _context.SaveChangesAsync();
+
+            if(file != null)
+            {
+                System.IO.File.Delete(_appEnvironment.WebRootPath + $"/files/{file.ID}{file.FileExtension}");
+
+                _context.File.Remove(file);
+                await _context.SaveChangesAsync();
+            }
+            
             return RedirectToAction(nameof(Index));
         }
 

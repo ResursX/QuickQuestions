@@ -1,0 +1,78 @@
+﻿@model QuickQuestions.Models.SurveyResult
+
+@{
+    ViewData["Title"] = "Ответы на опрос";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-9">
+        <h1>Ответы пользователя @ViewData["UserName"] на опрос "@Html.DisplayFor(model => model.Survey.Name)"</h1>
+
+        @foreach (var questionResult in Model.QuestionResults.OrderBy(qr => qr.Question.Index))
+        {
+            <div class="mb-3" style="background: #E9ECEE; border-radius: 10px;">
+                <div style="height: 6.84px; background: #FF0000; border-radius: 10px;"></div>
+
+                <div class="px-3 py-2">
+                    <div class="form-check">
+                        <div id="@questionResult.Question.ID" style="float: left; margin-left: -1.5em;">@(questionResult.Question.Index + 1).</div>
+                        <label class="form-check-label rich-text" for="@questionResult.Question.ID">
+                            @Html.Raw(questionResult.Question.Text)
+                        </label>
+                    </div>
+
+                    @if (!questionResult.CustomAnswer)
+                    {
+                        if (questionResult.AnswerID != null)
+                        {
+                            <div class="form-check">
+                                <label class="form-check-label rich-text">
+                                    @Html.Raw(questionResult.Answer.Text)
+                                </label>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="form-check">
+                                <label class="form-check-label">
+                                    Нет ответа
+                                </label>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="form-check">
+                            @switch (questionResult.Question.CustomAnswerType)
+                            {
+                                case QuestionCustomAnswerType.customText:
+                                    {
+                                        <label class="form-check-label">
+                                            @Html.Raw(questionResult.Text)
+                                        </label>
+                                        break;
+                                    }
+                                case QuestionCustomAnswerType.customRichText:
+                                    {
+                                        <label class="form-check-label rich-text">
+                                            @Html.Raw(questionResult.Text)
+                                        </label>
+                                        break;
+                                    }
+                                case QuestionCustomAnswerType.customFile:
+                                    {
+                                        foreach (var file in questionResult.QuestionResultFiles)
+                                        {
+                                            <a asp-controller="UserFiles" asp-action="View" asp-route-id="@file.ID">@Html.DisplayFor(model => file.FileName)</a><br />
+                                        }
+                                        break;
+                                    }
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
