@@ -36,8 +36,13 @@ namespace QuickQuestions
                     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
                     await RoleInitializer.InitializeRoles(roleManager);
 
-                    //var userManager = services.GetRequiredService<UserManager<QuickQuestionsUser>>();
-                    //await SuperAdminInitializer.InitializeSuperAdmin(userManager, roleManager);
+                    var configuration = new ConfigurationBuilder()
+                        .AddJsonFile("appsettings.json", optional: false)
+                        .Build();
+
+
+                    var userManager = services.GetRequiredService<UserManager<QuickQuestionsUser>>();
+                    await SuperAdminInitializer.InitializeSuperAdmin(configuration, userManager, roleManager);
 
                     logger.LogInformation("");
                 }
