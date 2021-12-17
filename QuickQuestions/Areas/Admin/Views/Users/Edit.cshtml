@@ -31,7 +31,9 @@
             </div>
             <div class="mb-3">
                 <label class="form-label">Отдел</label>
-                <select asp-for="UserBranchID" class="form-select" asp-items="ViewBag.BranchID"></select>
+                <select asp-for="UserBranchID" class="form-select" asp-items="ViewBag.BranchID">
+                    <option value="@null" selected>Выберите отдел...</option>
+                </select>
                 <span asp-validation-for="UserBranchID" class="text-danger"></span>
             </div>
             <div class="mb-3">

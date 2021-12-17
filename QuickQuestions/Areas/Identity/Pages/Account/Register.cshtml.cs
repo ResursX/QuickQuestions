@@ -53,29 +53,32 @@ namespace QuickQuestions.Areas.Identity.Pages.Account
         {
             [Required]
             [EmailAddress]
-            [Display(Name = "Email")]
+            [Display(Name = "Электронная почта")]
             public string Email { get; set; }
 
             [Required]
-            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+            [StringLength(100, ErrorMessage = "Пароль {0} должен состоять из {2}-{1} символов.", MinimumLength = 6)]
             [DataType(DataType.Password)]
-            [Display(Name = "Password")]
+            [Display(Name = "Пароль")]
             public string Password { get; set; }
 
             [DataType(DataType.Password)]
-            [Display(Name = "Confirm password")]
-            [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+            [Display(Name = "Подтверждение пароля")]
+            [Compare("Password", ErrorMessage = "Пароли не совпадают.")]
             public string ConfirmPassword { get; set; }
 
             [Required]
+            [Display(Name = "Имя")]
             public string Name { get; set; }
             [Required]
+            [Display(Name = "Фамилия")]
             public string Surname { get; set; }
             [Required]
+            [Display(Name = "Отчество")]
             public string Patronymic { get; set; }
 
-            [Required]
-            public Guid BranchID { get; set; }
+            [Display(Name = "Отдел")]
+            public Guid? BranchID { get; set; }
         }
 
         public async Task OnGetAsync(string returnUrl = null)
@@ -134,6 +137,7 @@ namespace QuickQuestions.Areas.Identity.Pages.Account
             }
 
             // If we got this far, something failed, redisplay form
+            ViewData["BranchID"] = new SelectList(_context.Branch, "ID", "Name", null);
             return Page();
         }
     }

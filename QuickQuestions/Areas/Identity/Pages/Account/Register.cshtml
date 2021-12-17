@@ -28,7 +28,7 @@
             <div class="mb-3">
                 <label>Отдел</label>
                 <select class="form-select" asp-for="Input.BranchID" asp-items="ViewBag.BranchID">
-                    <option value="" selected>Выберите отдел</option>
+                    <option value="@null" selected>Выберите отдел...</option>
                 </select>
                 <span class="text-danger"></span>
             </div>

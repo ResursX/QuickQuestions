@@ -98,12 +98,13 @@ namespace QuickQuestions.Areas.Admin.Controllers
                 return NotFound();
             }
 
+            var allRoles = await _roleManager.Roles.ToListAsync();
+
             if (ModelState.IsValid)
             {
                 //Обновление ролей
 
                 var userRoles = await _userManager.GetRolesAsync(user);
-                var allRoles = await _roleManager.Roles.ToListAsync();
 
                 var addedRoles = model.UserRoles.Except(userRoles);
                 var removedRoles = userRoles.Except(model.UserRoles);
@@ -166,6 +167,8 @@ namespace QuickQuestions.Areas.Admin.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
+
+            model.AllRoles = allRoles;
 
             ViewData["BranchID"] = new SelectList(_context.Branch, "ID", "Name", model.UserBranchID);
             return View(model);
